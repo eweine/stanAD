@@ -92,9 +92,9 @@ Eigen::MatrixXd log_cholesky_H(const Eigen::VectorXd& l_params, const Eigen::Mat
   };
 
   // Prepare storage for gradient
-  double fx;
-  Eigen::VectorXd grad_fx;
-  Eigen::MatrixXd hess_fx;
+  stan::math::var fx;
+  Eigen::Matrix< stan::math::var, Eigen::Dynamic, 1 > grad_fx;
+  Eigen::Matrix< stan::math::var, Eigen::Dynamic, Eigen::Dynamic >  hess_fx;
 
   // Compute gradient
   stan::math::hessian(func, l_params, fx, grad_fx, hess_fx);
