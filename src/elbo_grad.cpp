@@ -17,6 +17,7 @@ Eigen::VectorXd get_elbo_grad(
     const Eigen::VectorXd& sigma_log_chol,
     const Eigen::VectorXd& Zty,
     const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
     const Eigen::SparseMatrix<double>& Z,
     const Eigen::SparseMatrix<double>& Z2,
     const std::vector<int>& blocks_per_ranef,
@@ -28,17 +29,17 @@ Eigen::VectorXd get_elbo_grad(
   int n_log_chol_par = sigma_log_chol.size();
   Eigen::VectorXd par_joined(2 * n_ranef_par + n_fixef_par + n_log_chol_par);
   par_joined << m, log_s, b, sigma_log_chol;
-
   double fx;
   Eigen::VectorXd grad_fx;
   stan::math::gradient(
-    [&Zty, &Xty, &Z, &Z2, &blocks_per_ranef, &terms_per_block, &n_ranef_par, &n_fixef_par, &n_log_chol_par](auto par) {
+    [&Zty, &Xty, &Z, &Z2, &blocks_per_ranef, &terms_per_block, &n_ranef_par, &n_fixef_par, &X](auto par) {
 
-      stan::math::var elbo = stan::math::sum(Zty.cwiseProduct(par.segment(0, n_ranef_par))) +
-        stan::math::sum(Xty.cwiseProduct(par.segment(2*n_ranef_par, n_fixef_par))) -
+      stan::math::var elbo = stan::math::dot_product(Zty, par.segment(0, n_ranef_par)) +
+        stan::math::dot_product(Xty, par.segment(2*n_ranef_par, n_fixef_par)) -
         stan::math::sum(
           stan::math::exp(
-            Z * par.segment(0, n_ranef_par) + 0.5 * Z2 * stan::math::square(stan::math::exp(par.segment(n_ranef_par, n_ranef_par)))
+            Z * par.segment(0, n_ranef_par) + X * par.segment(2*n_ranef_par, n_fixef_par) +
+              0.5 * Z2 * stan::math::square(stan::math::exp(par.segment(n_ranef_par, n_ranef_par)))
           )
         ) + stan::math::sum(par.segment(n_ranef_par, n_ranef_par));
 
@@ -108,4 +109,3 @@ Eigen::VectorXd get_elbo_grad(
   return grad_fx;
 
 }
-

@@ -11,6 +11,7 @@ double get_elbo_pois_glmm_MFVB(
     const Eigen::VectorXd& sigma_log_chol,
     const Eigen::VectorXd& Zty,
     const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
     const Eigen::SparseMatrix<double>& Z,
     const Eigen::SparseMatrix<double>& Z2,
     const std::vector<int>& blocks_per_ranef,
@@ -21,7 +22,7 @@ double get_elbo_pois_glmm_MFVB(
   Eigen::VectorXd s2 = log_s.array().exp().square();
 
   // Calculate the link vector: link = Z * m + 0.5 * Z2 * s2
-  Eigen::VectorXd link = Z * m + 0.5 * Z2 * s2;
+  Eigen::VectorXd link = Z * m + 0.5 * Z2 * s2 + X * b;
 
   double elbo = 0;
   elbo += Zty.dot(m) +
