@@ -11,6 +11,46 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// get_elbo_grad
+Eigen::VectorXd get_elbo_grad(const Eigen::VectorXd& m, const Eigen::VectorXd& log_s, const Eigen::VectorXd& b, const Eigen::VectorXd& sigma_log_chol, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block);
+RcppExport SEXP _stanAD_get_elbo_grad(SEXP mSEXP, SEXP log_sSEXP, SEXP bSEXP, SEXP sigma_log_cholSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type log_s(log_sSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type sigma_log_chol(sigma_log_cholSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Xty(XtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z2(Z2SEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_elbo_grad(m, log_s, b, sigma_log_chol, Zty, Xty, Z, Z2, blocks_per_ranef, terms_per_block));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_elbo_pois_glmm_MFVB
+double get_elbo_pois_glmm_MFVB(const Eigen::VectorXd& m, const Eigen::VectorXd& log_s, const Eigen::VectorXd& b, const Eigen::VectorXd& sigma_log_chol, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block);
+RcppExport SEXP _stanAD_get_elbo_pois_glmm_MFVB(SEXP mSEXP, SEXP log_sSEXP, SEXP bSEXP, SEXP sigma_log_cholSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type log_s(log_sSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type sigma_log_chol(sigma_log_cholSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Xty(XtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z2(Z2SEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_elbo_pois_glmm_MFVB(m, log_s, b, sigma_log_chol, Zty, Xty, Z, Z2, blocks_per_ranef, terms_per_block));
+    return rcpp_result_gen;
+END_RCPP
+}
 // H
 Eigen::MatrixXd H(Eigen::VectorXd x, Eigen::VectorXd a);
 RcppExport SEXP _stanAD_H(SEXP xSEXP, SEXP aSEXP) {
@@ -35,23 +75,12 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// log_cholesky_H
-Eigen::MatrixXd log_cholesky_H(const Eigen::VectorXd& l_params, const Eigen::MatrixXd& A);
-RcppExport SEXP _stanAD_log_cholesky_H(SEXP l_paramsSEXP, SEXP ASEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type l_params(l_paramsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type A(ASEXP);
-    rcpp_result_gen = Rcpp::wrap(log_cholesky_H(l_params, A));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 10},
+    {"_stanAD_get_elbo_pois_glmm_MFVB", (DL_FUNC) &_stanAD_get_elbo_pois_glmm_MFVB, 10},
     {"_stanAD_H", (DL_FUNC) &_stanAD_H, 2},
     {"_stanAD_log_cholesky_grad", (DL_FUNC) &_stanAD_log_cholesky_grad, 2},
-    {"_stanAD_log_cholesky_H", (DL_FUNC) &_stanAD_log_cholesky_H, 2},
     {NULL, NULL, 0}
 };
 
