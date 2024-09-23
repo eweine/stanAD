@@ -11,24 +11,18 @@
 
 // [[Rcpp::export]]
 Eigen::VectorXd get_elbo_grad(
-    const Eigen::VectorXd& m,
-    const Eigen::VectorXd& log_s,
-    const Eigen::VectorXd& b,
-    const Eigen::VectorXd& sigma_log_chol,
+    const Eigen::VectorXd& par_vals,
     const Eigen::VectorXd& Zty,
     const Eigen::VectorXd& Xty,
     const Eigen::MatrixXd& X,
     const Eigen::SparseMatrix<double>& Z,
     const Eigen::SparseMatrix<double>& Z2,
     const std::vector<int>& blocks_per_ranef,
-    const std::vector<int>& terms_per_block
+    const std::vector<int>& terms_per_block,
+    int& n_ranef_par,
+    int& n_fixef_par
 ) {
 
-  int n_ranef_par = m.size();
-  int n_fixef_par = b.size();
-  int n_log_chol_par = sigma_log_chol.size();
-  Eigen::VectorXd par_joined(2 * n_ranef_par + n_fixef_par + n_log_chol_par);
-  par_joined << m, log_s, b, sigma_log_chol;
   double fx;
   Eigen::VectorXd grad_fx;
   stan::math::gradient(
@@ -94,8 +88,6 @@ Eigen::VectorXd get_elbo_grad(
                 ).reshaped(terms_per_block[k], blocks_per_ranef[k]).transpose().array()
               );
 
-//
-
         cols_iterated_through += blocks_per_ranef[k] * terms_per_block[k];
 
       }
@@ -103,7 +95,7 @@ Eigen::VectorXd get_elbo_grad(
       return elbo;
 
     },
-                       par_joined, fx, grad_fx);
+                       par_vals, fx, grad_fx);
 
   Rprintf("fx = %f\n", fx);
   return grad_fx;

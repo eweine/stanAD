@@ -5,18 +5,23 @@
 
 // [[Rcpp::export]]
 double get_elbo_pois_glmm_MFVB(
-    const Eigen::VectorXd& m,
-    const Eigen::VectorXd& log_s,
-    const Eigen::VectorXd& b,
-    const Eigen::VectorXd& sigma_log_chol,
+    const Eigen::VectorXd& par_vals,
     const Eigen::VectorXd& Zty,
     const Eigen::VectorXd& Xty,
     const Eigen::MatrixXd& X,
     const Eigen::SparseMatrix<double>& Z,
     const Eigen::SparseMatrix<double>& Z2,
     const std::vector<int>& blocks_per_ranef,
-    const std::vector<int>& terms_per_block
+    const std::vector<int>& terms_per_block,
+    int& n_ranef_par,
+    int& n_fixef_par
 ) {
+
+  int n_log_chol_par = par_vals.size() - (2*n_ranef_par + n_fixef_par);
+  Eigen::VectorXd m = par_vals.segment(0, n_ranef_par);
+  Eigen::VectorXd log_s = par_vals.segment(n_ranef_par, n_ranef_par);
+  Eigen::VectorXd b = par_vals.segment(2*n_ranef_par, n_fixef_par);
+  Eigen::VectorXd sigma_log_chol = par_vals.segment(2*n_ranef_par + n_fixef_par, n_log_chol_par);
 
   // Calculate s2 = (exp(log_s))^2
   Eigen::VectorXd s2 = log_s.array().exp().square();
@@ -60,11 +65,11 @@ double get_elbo_pois_glmm_MFVB(
     L_tilde.diagonal() = L_tilde.diagonal().array().exp();
     Sigma = L_tilde * L_tilde.transpose();
     Sigma_inv = Sigma.inverse();
-    //
+
     s_block = s2.segment(
       cols_iterated_through, blocks_per_ranef[k] * terms_per_block[k]
     );
-    //
+
     m_block = m.segment(
       cols_iterated_through, blocks_per_ranef[k] * terms_per_block[k]
     );
@@ -72,9 +77,9 @@ double get_elbo_pois_glmm_MFVB(
     M = m_block.reshaped(
       terms_per_block[k], blocks_per_ranef[k]
     ).transpose();
-    //
+
     elbo -= 0.5 * ((M * Sigma_inv).array() * M.array()).sum();
-    //
+
     elbo -= 0.5 * s_block.reshaped(
        terms_per_block[k],
        blocks_per_ranef[k]

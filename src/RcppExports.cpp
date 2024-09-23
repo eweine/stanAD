@@ -12,15 +12,12 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // get_elbo_grad
-Eigen::VectorXd get_elbo_grad(const Eigen::VectorXd& m, const Eigen::VectorXd& log_s, const Eigen::VectorXd& b, const Eigen::VectorXd& sigma_log_chol, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block);
-RcppExport SEXP _stanAD_get_elbo_grad(SEXP mSEXP, SEXP log_sSEXP, SEXP bSEXP, SEXP sigma_log_cholSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP) {
+Eigen::VectorXd get_elbo_grad(const Eigen::VectorXd& par_vals, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block, int& n_ranef_par, int& n_fixef_par);
+RcppExport SEXP _stanAD_get_elbo_grad(SEXP par_valsSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP, SEXP n_ranef_parSEXP, SEXP n_fixef_parSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type m(mSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type log_s(log_sSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type sigma_log_chol(sigma_log_cholSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type par_vals(par_valsSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Xty(XtySEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
@@ -28,21 +25,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z2(Z2SEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_elbo_grad(m, log_s, b, sigma_log_chol, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block));
+    Rcpp::traits::input_parameter< int& >::type n_ranef_par(n_ranef_parSEXP);
+    Rcpp::traits::input_parameter< int& >::type n_fixef_par(n_fixef_parSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_elbo_grad(par_vals, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_elbo_hvp
-Eigen::VectorXd get_elbo_hvp(const Eigen::VectorXd& m, const Eigen::VectorXd& log_s, const Eigen::VectorXd& b, const Eigen::Matrix<double, Eigen::Dynamic, 1>& v, const Eigen::VectorXd& sigma_log_chol, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block);
-RcppExport SEXP _stanAD_get_elbo_hvp(SEXP mSEXP, SEXP log_sSEXP, SEXP bSEXP, SEXP vSEXP, SEXP sigma_log_cholSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP) {
+Eigen::VectorXd get_elbo_hvp(const Eigen::VectorXd& par_vals, const Eigen::Matrix<double, Eigen::Dynamic, 1>& v, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block, int& n_ranef_par, int& n_fixef_par);
+RcppExport SEXP _stanAD_get_elbo_hvp(SEXP par_valsSEXP, SEXP vSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP, SEXP n_ranef_parSEXP, SEXP n_fixef_parSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type m(mSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type log_s(log_sSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type par_vals(par_valsSEXP);
     Rcpp::traits::input_parameter< const Eigen::Matrix<double, Eigen::Dynamic, 1>& >::type v(vSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type sigma_log_chol(sigma_log_cholSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Xty(XtySEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
@@ -50,20 +46,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z2(Z2SEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_elbo_hvp(m, log_s, b, v, sigma_log_chol, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block));
+    Rcpp::traits::input_parameter< int& >::type n_ranef_par(n_ranef_parSEXP);
+    Rcpp::traits::input_parameter< int& >::type n_fixef_par(n_fixef_parSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_elbo_hvp(par_vals, v, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par));
     return rcpp_result_gen;
 END_RCPP
 }
 // get_elbo_pois_glmm_MFVB
-double get_elbo_pois_glmm_MFVB(const Eigen::VectorXd& m, const Eigen::VectorXd& log_s, const Eigen::VectorXd& b, const Eigen::VectorXd& sigma_log_chol, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block);
-RcppExport SEXP _stanAD_get_elbo_pois_glmm_MFVB(SEXP mSEXP, SEXP log_sSEXP, SEXP bSEXP, SEXP sigma_log_cholSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP) {
+double get_elbo_pois_glmm_MFVB(const Eigen::VectorXd& par_vals, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const Eigen::SparseMatrix<double>& Z, const Eigen::SparseMatrix<double>& Z2, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block, int& n_ranef_par, int& n_fixef_par);
+RcppExport SEXP _stanAD_get_elbo_pois_glmm_MFVB(SEXP par_valsSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP, SEXP n_ranef_parSEXP, SEXP n_fixef_parSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type m(mSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type log_s(log_sSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type b(bSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type sigma_log_chol(sigma_log_cholSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type par_vals(par_valsSEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
     Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Xty(XtySEXP);
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
@@ -71,7 +66,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Eigen::SparseMatrix<double>& >::type Z2(Z2SEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_elbo_pois_glmm_MFVB(m, log_s, b, sigma_log_chol, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block));
+    Rcpp::traits::input_parameter< int& >::type n_ranef_par(n_ranef_parSEXP);
+    Rcpp::traits::input_parameter< int& >::type n_fixef_par(n_fixef_parSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_elbo_pois_glmm_MFVB(par_vals, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -99,13 +96,50 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// single_newton_1D_pois_glmm_cpp_testing
+Rcpp::List single_newton_1D_pois_glmm_cpp_testing(const double& sum_yz, const Eigen::VectorXd& z, double& m, double& log_s, double& s2, const double& sig2, Eigen::VectorXd& link_offset);
+RcppExport SEXP _stanAD_single_newton_1D_pois_glmm_cpp_testing(SEXP sum_yzSEXP, SEXP zSEXP, SEXP mSEXP, SEXP log_sSEXP, SEXP s2SEXP, SEXP sig2SEXP, SEXP link_offsetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double& >::type sum_yz(sum_yzSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< double& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< double& >::type log_s(log_sSEXP);
+    Rcpp::traits::input_parameter< double& >::type s2(s2SEXP);
+    Rcpp::traits::input_parameter< const double& >::type sig2(sig2SEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type link_offset(link_offsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(single_newton_1D_pois_glmm_cpp_testing(sum_yz, z, m, log_s, s2, sig2, link_offset));
+    return rcpp_result_gen;
+END_RCPP
+}
+// single_newton_multiD_pois_glmm_cpp_testing
+Rcpp::List single_newton_multiD_pois_glmm_cpp_testing(const Eigen::VectorXd& Zty, const Eigen::MatrixXd& Z, Eigen::VectorXd& m, Eigen::VectorXd& S_log_chol, const std::vector<int> log_chol_diag_idx, Eigen::MatrixXd& S, const Eigen::MatrixXd& Sigma_inv, Eigen::VectorXd& link_offset);
+RcppExport SEXP _stanAD_single_newton_multiD_pois_glmm_cpp_testing(SEXP ZtySEXP, SEXP ZSEXP, SEXP mSEXP, SEXP S_log_cholSEXP, SEXP log_chol_diag_idxSEXP, SEXP SSEXP, SEXP Sigma_invSEXP, SEXP link_offsetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type S_log_chol(S_log_cholSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int> >::type log_chol_diag_idx(log_chol_diag_idxSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Sigma_inv(Sigma_invSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type link_offset(link_offsetSEXP);
+    rcpp_result_gen = Rcpp::wrap(single_newton_multiD_pois_glmm_cpp_testing(Zty, Z, m, S_log_chol, log_chol_diag_idx, S, Sigma_inv, link_offset));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 11},
-    {"_stanAD_get_elbo_hvp", (DL_FUNC) &_stanAD_get_elbo_hvp, 12},
-    {"_stanAD_get_elbo_pois_glmm_MFVB", (DL_FUNC) &_stanAD_get_elbo_pois_glmm_MFVB, 11},
+    {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 10},
+    {"_stanAD_get_elbo_hvp", (DL_FUNC) &_stanAD_get_elbo_hvp, 11},
+    {"_stanAD_get_elbo_pois_glmm_MFVB", (DL_FUNC) &_stanAD_get_elbo_pois_glmm_MFVB, 10},
     {"_stanAD_H", (DL_FUNC) &_stanAD_H, 2},
     {"_stanAD_log_cholesky_grad", (DL_FUNC) &_stanAD_log_cholesky_grad, 2},
+    {"_stanAD_single_newton_1D_pois_glmm_cpp_testing", (DL_FUNC) &_stanAD_single_newton_1D_pois_glmm_cpp_testing, 7},
+    {"_stanAD_single_newton_multiD_pois_glmm_cpp_testing", (DL_FUNC) &_stanAD_single_newton_multiD_pois_glmm_cpp_testing, 8},
     {NULL, NULL, 0}
 };
 
