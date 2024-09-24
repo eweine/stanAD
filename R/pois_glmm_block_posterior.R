@@ -41,7 +41,9 @@ fit_pois_glmm_block_posterior <- function(
   Z_idx@x <- rep(1, length(Z_idx@x))
   n_nz_per_col <- Matrix::colSums(Z_idx)
 
-  #rm(Z, Z_idx, Z2, fixef_glm)
+  y <- parsed$fr$y
+  X <- parsed$X
+  #rm(Z, Z_idx, Z2, fixef_glm, parsed)
 
   fit_out <- fit_pois_glmm_block_posterior_ccd(
     Zty = Zty,
@@ -51,7 +53,7 @@ fit_pois_glmm_block_posterior <- function(
     m = m,
     b = b_init,
     S_log_chol = S_log_chol,
-    X = parsed$X,
+    X = X,
     Xty = crossprod(X, y)[,1],
     n_nz_terms_per_col = n_nz_per_col,
     terms_per_block = terms_per_block,

@@ -80,6 +80,7 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
   }
 
   Rcpp::List fit;
+  fit["b"] = b;
   fit["m"] = m;
   fit["S"] = S;
   fit["Sigma"] = Sigma;

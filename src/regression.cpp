@@ -1,5 +1,6 @@
 #include <RcppEigen.h>
 #include "regression.h"
+#include "utils.h"
 
 // [[Rcpp::depends(RcppEigen)]]
 
@@ -134,11 +135,18 @@ void single_newton_mod_pois_reg(
   Eigen::VectorXd a = link_offset.array().exp();
   Eigen::VectorXd exp_eta = eta.array().exp();
   double current_lik = -Xty.dot(b) + a.dot(exp_eta);
+  Rprintf("Current fixef lik = %f\n", current_lik);
 
+  //Rprintf("Printing y_tilde\n");
   Eigen::VectorXd y_tilde = a.array() * exp_eta.array();
+  //printVector(y_tilde);
+  //Rprintf("Printing g\n");
   Eigen::VectorXd g = (X.transpose() * y_tilde) - Xty;
+  //printVector(g);
+  //Rprintf("Printing H\n");
   Eigen::MatrixXd H = X.transpose() * (y_tilde.array() * X.array()).matrix();
-  Eigen::VectorXd dir = -H.ldlt().solve(g); // LDLT is used for better stability than inverse
+  //printMatrix(H);
+  Eigen::VectorXd dir = -H.inverse() * g;
   Eigen::VectorXd b_proposed;
 
   double dec_const = dir.dot(g);
@@ -155,7 +163,7 @@ void single_newton_mod_pois_reg(
     b_proposed = b + alpha * dir;
     eta_proposed = X * b_proposed;
     lik_proposed = -Xty.dot(b_proposed) +
-      a.dot(eta_proposed.exp());
+      a.dot(eta_proposed.array().exp().matrix());
 
     if (lik_proposed <= current_lik + cc * alpha * dec_const) {
 

@@ -31,7 +31,9 @@ void fpiter_pois_glmm(
 
     if (terms_per_block[k] == 1) {
 
+      Rprintf("Entering code for single term per block\n");
       double sig2 = (Sigma[k])(0, 0);
+      Rprintf("sig2 = %f\n", sig2);
       Eigen::VectorXd new_par;
       double iter_m;
       double iter_log_s;
@@ -39,6 +41,8 @@ void fpiter_pois_glmm(
       double sig2_new = 0;
 
       for (int j = total_ranef_coefs_looped; j < total_ranef_coefs_looped + blocks_per_ranef[k]; j++) {
+
+        Rprintf("j = %i\n", j);
 
         iter_link_offset = link_offset(y_nz_idx[j]);
         iter_m = m(m_par_iterated_through);
@@ -68,7 +72,9 @@ void fpiter_pois_glmm(
 
       }
 
-      (Sigma[k])(0, 0) = sig2_new / (static_cast<double>(terms_per_block[k]));
+      Rprintf("Updating Sigma...\n");
+      (Sigma[k])(0, 0) = sig2_new / (static_cast<double>(blocks_per_ranef[k]));
+      Rprintf("Done updating Sigma...\n");
 
     } else {
 
@@ -108,12 +114,13 @@ void fpiter_pois_glmm(
 
       }
 
-      Sigma[k] = Sigma_new / (static_cast<double>(terms_per_block[k]));
+      Sigma[k] = Sigma_new / (static_cast<double>(blocks_per_ranef[k]));
 
     }
   }
 
 
+  Rprintf("Updating fixed effects\n");
   // now, update fixed effects parameters
   single_newton_mod_pois_reg(
     X,
@@ -121,6 +128,8 @@ void fpiter_pois_glmm(
     link_offset,
     b
   );
+
+  Rprintf("Done updating fixed effects\n");
 
   return;
 
