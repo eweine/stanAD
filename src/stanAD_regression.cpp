@@ -83,7 +83,7 @@ void single_newton_multiD_pois_glmm_cpp(
   grad(log_chol_diag_idx).array() -= 1;
   H.topLeftCorner(n_ranef_par, n_ranef_par) += Sigma_inv;
   //Rprintf("Got gradient and hessian\n");
-  Rprintf("current_elbo = %f\n", fx);
+  //Rprintf("current_elbo = %f\n", fx);
 
   //
   // // I think this is about as efficient as I can get the code
@@ -137,21 +137,13 @@ void single_newton_multiD_pois_glmm_cpp(
     //printMatrix(S_proposed);
     // Now, I should be able to calculate the proposed_elbo
     link_proposed = Z * m_proposed + 0.5 * (Z * S_proposed).cwiseProduct(Z).rowwise().sum();
-    //Rprintf("Printing link_proposed\n");
-    //printVector(link_proposed);
-    double exp_link_dot = exp_link_offset.dot(link_proposed.array().exp().matrix());
-    //Rprintf("exp_link_dot = %f\n", exp_link_dot);
-    double link_dot = Zty.dot(m_proposed);
-    //Rprintf("link_dot = %f\n", link_dot);
-    double mSigm = m_proposed.dot(Sigma_inv * m_proposed);
-    //Rprintf("mSigm = %f\n", mSigm);
-    double trace_term = (S_proposed * Sigma_inv).diagonal().sum();
-    //Rprintf("trace_term = %f\n", trace_term);
-    elbo_proposed += exp_link_dot -
-      link_dot + 0.5 * mSigm +
-      0.5 * trace_term;
 
-    Rprintf("Proposed elbo = %f\n", elbo_proposed);
+    elbo_proposed += exp_link_offset.dot(link_proposed.array().exp().matrix()) -
+      Zty.dot(m_proposed) + 0.5 * (
+        m_proposed.dot(Sigma_inv * m_proposed) + (S_proposed * Sigma_inv).diagonal().sum()
+      );
+
+    //Rprintf("Proposed elbo = %f\n", elbo_proposed);
 
     if (elbo_proposed <= fx + cc * alpha * dec_const) {
       step_accepted = true;
@@ -172,35 +164,35 @@ void single_newton_multiD_pois_glmm_cpp(
 
 }
 
-//' @export
-// [[Rcpp::export]]
-Rcpp::List single_newton_multiD_pois_glmm_cpp_testing(
-    const Eigen::VectorXd& Zty,
-    const Eigen::MatrixXd& Z,
-    Eigen::VectorXd& m,
-    Eigen::VectorXd& S_log_chol,
-    const std::vector<int> log_chol_diag_idx,
-    Eigen::MatrixXd& S,
-    const Eigen::MatrixXd& Sigma_inv,
-    Eigen::VectorXd& link_offset
-) {
 
-  single_newton_multiD_pois_glmm_cpp(
-    Zty,
-    Z,
-    m,
-    S_log_chol,
-    log_chol_diag_idx,
-    S,
-    Sigma_inv,
-    link_offset
-  );
 
-  Rcpp::List out;
-  out["m"] = m;
-  out["S"] = S;
-  out["S_log_chol"] = S_log_chol;
-  return out;
-
-}
-
+// Rcpp::List single_newton_multiD_pois_glmm_cpp_testing(
+//     const Eigen::VectorXd& Zty,
+//     const Eigen::MatrixXd& Z,
+//     Eigen::VectorXd& m,
+//     Eigen::VectorXd& S_log_chol,
+//     const std::vector<int> log_chol_diag_idx,
+//     Eigen::MatrixXd& S,
+//     const Eigen::MatrixXd& Sigma_inv,
+//     Eigen::VectorXd& link_offset
+// ) {
+//
+//   single_newton_multiD_pois_glmm_cpp(
+//     Zty,
+//     Z,
+//     m,
+//     S_log_chol,
+//     log_chol_diag_idx,
+//     S,
+//     Sigma_inv,
+//     link_offset
+//   );
+//
+//   Rcpp::List out;
+//   out["m"] = m;
+//   out["S"] = S;
+//   out["S_log_chol"] = S_log_chol;
+//   return out;
+//
+// }
+//

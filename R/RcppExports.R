@@ -13,21 +13,16 @@ get_elbo_pois_glmm_MFVB <- function(par_vals, Zty, Xty, X, Z, Z2, blocks_per_ran
     .Call(`_stanAD_get_elbo_pois_glmm_MFVB`, par_vals, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par)
 }
 
+#' @export
+fit_pois_glmm_block_posterior_ccd <- function(m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, num_iter) {
+    .Call(`_stanAD_fit_pois_glmm_block_posterior_ccd`, m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, num_iter)
+}
+
 H <- function(x, a) {
     .Call(`_stanAD_H`, x, a)
 }
 
 log_cholesky_grad <- function(l_params, A) {
     .Call(`_stanAD_log_cholesky_grad`, l_params, A)
-}
-
-#' @export
-single_newton_1D_pois_glmm_cpp_testing <- function(sum_yz, z, m, log_s, s2, sig2, link_offset) {
-    .Call(`_stanAD_single_newton_1D_pois_glmm_cpp_testing`, sum_yz, z, m, log_s, s2, sig2, link_offset)
-}
-
-#' @export
-single_newton_multiD_pois_glmm_cpp_testing <- function(Zty, Z, m, S_log_chol, log_chol_diag_idx, S, Sigma_inv, link_offset) {
-    .Call(`_stanAD_single_newton_multiD_pois_glmm_cpp_testing`, Zty, Z, m, S_log_chol, log_chol_diag_idx, S, Sigma_inv, link_offset)
 }
 

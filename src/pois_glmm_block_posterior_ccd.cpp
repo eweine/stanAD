@@ -6,7 +6,8 @@
 
 // [[Rcpp::plugins(cpp17)]]
 
-
+//' @export
+// [[Rcpp::export]]
 Rcpp::List fit_pois_glmm_block_posterior_ccd(
     Eigen::VectorXd& m,
     Eigen::VectorXd& S_log_chol,

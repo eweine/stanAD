@@ -72,6 +72,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fit_pois_glmm_block_posterior_ccd
+Rcpp::List fit_pois_glmm_block_posterior_ccd(Eigen::VectorXd& m, Eigen::VectorXd& S_log_chol, Eigen::VectorXd& b, Eigen::VectorXd& link_offset, const std::vector<int>& n_nz_terms_per_col, const std::vector<int>& terms_per_block, const std::vector<int>& blocks_per_ranef, const std::vector<int>& log_chol_par_per_block, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const std::vector<int>& Z_i, const std::vector<int>& Z_j, const std::vector<double>& Z_x, const int& num_iter);
+RcppExport SEXP _stanAD_fit_pois_glmm_block_posterior_ccd(SEXP mSEXP, SEXP S_log_cholSEXP, SEXP bSEXP, SEXP link_offsetSEXP, SEXP n_nz_terms_per_colSEXP, SEXP terms_per_blockSEXP, SEXP blocks_per_ranefSEXP, SEXP log_chol_par_per_blockSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP Z_iSEXP, SEXP Z_jSEXP, SEXP Z_xSEXP, SEXP num_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type S_log_chol(S_log_cholSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type b(bSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type link_offset(link_offsetSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type n_nz_terms_per_col(n_nz_terms_per_colSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type log_chol_par_per_block(log_chol_par_per_blockSEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Xty(XtySEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type Z_i(Z_iSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type Z_j(Z_jSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type Z_x(Z_xSEXP);
+    Rcpp::traits::input_parameter< const int& >::type num_iter(num_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_pois_glmm_block_posterior_ccd(m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, num_iter));
+    return rcpp_result_gen;
+END_RCPP
+}
 // H
 Eigen::MatrixXd H(Eigen::VectorXd x, Eigen::VectorXd a);
 RcppExport SEXP _stanAD_H(SEXP xSEXP, SEXP aSEXP) {
@@ -96,50 +121,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// single_newton_1D_pois_glmm_cpp_testing
-Rcpp::List single_newton_1D_pois_glmm_cpp_testing(const double& sum_yz, const Eigen::VectorXd& z, double& m, double& log_s, double& s2, const double& sig2, Eigen::VectorXd& link_offset);
-RcppExport SEXP _stanAD_single_newton_1D_pois_glmm_cpp_testing(SEXP sum_yzSEXP, SEXP zSEXP, SEXP mSEXP, SEXP log_sSEXP, SEXP s2SEXP, SEXP sig2SEXP, SEXP link_offsetSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const double& >::type sum_yz(sum_yzSEXP);
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type z(zSEXP);
-    Rcpp::traits::input_parameter< double& >::type m(mSEXP);
-    Rcpp::traits::input_parameter< double& >::type log_s(log_sSEXP);
-    Rcpp::traits::input_parameter< double& >::type s2(s2SEXP);
-    Rcpp::traits::input_parameter< const double& >::type sig2(sig2SEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type link_offset(link_offsetSEXP);
-    rcpp_result_gen = Rcpp::wrap(single_newton_1D_pois_glmm_cpp_testing(sum_yz, z, m, log_s, s2, sig2, link_offset));
-    return rcpp_result_gen;
-END_RCPP
-}
-// single_newton_multiD_pois_glmm_cpp_testing
-Rcpp::List single_newton_multiD_pois_glmm_cpp_testing(const Eigen::VectorXd& Zty, const Eigen::MatrixXd& Z, Eigen::VectorXd& m, Eigen::VectorXd& S_log_chol, const std::vector<int> log_chol_diag_idx, Eigen::MatrixXd& S, const Eigen::MatrixXd& Sigma_inv, Eigen::VectorXd& link_offset);
-RcppExport SEXP _stanAD_single_newton_multiD_pois_glmm_cpp_testing(SEXP ZtySEXP, SEXP ZSEXP, SEXP mSEXP, SEXP S_log_cholSEXP, SEXP log_chol_diag_idxSEXP, SEXP SSEXP, SEXP Sigma_invSEXP, SEXP link_offsetSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type Zty(ZtySEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type m(mSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type S_log_chol(S_log_cholSEXP);
-    Rcpp::traits::input_parameter< const std::vector<int> >::type log_chol_diag_idx(log_chol_diag_idxSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd& >::type S(SSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type Sigma_inv(Sigma_invSEXP);
-    Rcpp::traits::input_parameter< Eigen::VectorXd& >::type link_offset(link_offsetSEXP);
-    rcpp_result_gen = Rcpp::wrap(single_newton_multiD_pois_glmm_cpp_testing(Zty, Z, m, S_log_chol, log_chol_diag_idx, S, Sigma_inv, link_offset));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 10},
     {"_stanAD_get_elbo_hvp", (DL_FUNC) &_stanAD_get_elbo_hvp, 11},
     {"_stanAD_get_elbo_pois_glmm_MFVB", (DL_FUNC) &_stanAD_get_elbo_pois_glmm_MFVB, 10},
+    {"_stanAD_fit_pois_glmm_block_posterior_ccd", (DL_FUNC) &_stanAD_fit_pois_glmm_block_posterior_ccd, 15},
     {"_stanAD_H", (DL_FUNC) &_stanAD_H, 2},
     {"_stanAD_log_cholesky_grad", (DL_FUNC) &_stanAD_log_cholesky_grad, 2},
-    {"_stanAD_single_newton_1D_pois_glmm_cpp_testing", (DL_FUNC) &_stanAD_single_newton_1D_pois_glmm_cpp_testing, 7},
-    {"_stanAD_single_newton_multiD_pois_glmm_cpp_testing", (DL_FUNC) &_stanAD_single_newton_multiD_pois_glmm_cpp_testing, 8},
     {NULL, NULL, 0}
 };
 

@@ -26,7 +26,7 @@ void single_newton_1D_pois_glmm_cpp(
   double current_lik = -sum_yz * m + exp_term.sum() +
     0.5 * (1 / sig2) * (m * m + s2) - log_s;
 
-  Rprintf("Current elbo = %f\n", current_lik);
+  //Rprintf("Current elbo = %f\n", current_lik);
 
   double dfdm = -sum_yz + exp_term.dot(z) + (m / sig2);
   double df2dm2 = exp_term.dot(z2) + (1 / sig2);
@@ -71,7 +71,7 @@ void single_newton_1D_pois_glmm_cpp(
     lik_proposed = -sum_yz * m_proposed + exp_term_proposed.sum() +
       0.5 * (1 / sig2) * (m_proposed * m_proposed + s2_proposed) - log_s_proposed;
 
-    Rprintf("Proposed elbo = %f\n", lik_proposed);
+    //Rprintf("Proposed elbo = %f\n", lik_proposed);
 
     if (lik_proposed <= current_lik + cc * alpha * dec_const) {
       step_accepted = true;
@@ -93,34 +93,34 @@ void single_newton_1D_pois_glmm_cpp(
 }
 
 
-//' @export
-// [[Rcpp::export]]
-Rcpp::List single_newton_1D_pois_glmm_cpp_testing(
-   const double& sum_yz,
-   const Eigen::VectorXd& z,
-   double& m,      // scalar mean parameter
-   double& log_s,  // log scalar standard deviation parameter
-   double& s2,
-   const double& sig2,   // variance of prior
-   Eigen::VectorXd& link_offset // vector of offsets from other parameters
-) {
 
-  single_newton_1D_pois_glmm_cpp(
-    sum_yz,
-    z,
-    m,      // scalar mean parameter
-    log_s,  // log scalar standard deviation parameter
-    s2,
-    sig2,   // variance of prior
-    link_offset // vector of offsets from other parameters
-  );
-
-  Rcpp::List out;
-  out["m"] = m;
-  out["log_s"] = log_s;
-  return out;
-
-}
+// Rcpp::List single_newton_1D_pois_glmm_cpp_testing(
+//    const double& sum_yz,
+//    const Eigen::VectorXd& z,
+//    double& m,      // scalar mean parameter
+//    double& log_s,  // log scalar standard deviation parameter
+//    double& s2,
+//    const double& sig2,   // variance of prior
+//    Eigen::VectorXd& link_offset // vector of offsets from other parameters
+// ) {
+//
+//   single_newton_1D_pois_glmm_cpp(
+//     sum_yz,
+//     z,
+//     m,      // scalar mean parameter
+//     log_s,  // log scalar standard deviation parameter
+//     s2,
+//     sig2,   // variance of prior
+//     link_offset // vector of offsets from other parameters
+//   );
+//
+//   Rcpp::List out;
+//   out["m"] = m;
+//   out["log_s"] = log_s;
+//   return out;
+//
+// }
+//
 
 void single_newton_mod_pois_reg(
     const Eigen::MatrixXd& X,
