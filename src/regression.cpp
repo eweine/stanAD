@@ -135,18 +135,20 @@ void single_newton_mod_pois_reg(
   Eigen::VectorXd a = link_offset.array().exp();
   Eigen::VectorXd exp_eta = eta.array().exp();
   double current_lik = -Xty.dot(b) + a.dot(exp_eta);
-  Rprintf("Current fixef lik = %f\n", current_lik);
+  //Rprintf("Current fixef lik = %f\n", current_lik);
 
   //Rprintf("Printing y_tilde\n");
   Eigen::VectorXd y_tilde = a.array() * exp_eta.array();
   //printVector(y_tilde);
   //Rprintf("Printing g\n");
   Eigen::VectorXd g = (X.transpose() * y_tilde) - Xty;
+  Rprintf("Size of g = %li\n", g.size());
   //printVector(g);
   //Rprintf("Printing H\n");
-  Eigen::MatrixXd H = X.transpose() * (y_tilde.array() * X.array()).matrix();
+  Eigen::MatrixXd H = X.transpose() * y_tilde.asDiagonal() * X;
   //printMatrix(H);
   Eigen::VectorXd dir = -H.inverse() * g;
+  Rprintf("Size of dir = %li\n", dir.size());
   Eigen::VectorXd b_proposed;
 
   double dec_const = dir.dot(g);

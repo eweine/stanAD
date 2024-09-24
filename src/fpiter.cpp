@@ -121,6 +121,8 @@ void fpiter_pois_glmm(
 
 
   Rprintf("Updating fixed effects\n");
+  Rprintf("Size of b = %li\n", b.size());
+  Rprintf("Size of Xty = %li\n", Xty.size());
   // now, update fixed effects parameters
   single_newton_mod_pois_reg(
     X,
@@ -130,6 +132,7 @@ void fpiter_pois_glmm(
   );
 
   Rprintf("Done updating fixed effects\n");
+  Rprintf("Size of b = %li\n", b.size());
 
   return;
 

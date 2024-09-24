@@ -12,6 +12,8 @@ fit_pois_glmm_block_posterior <- function(
   ...
 ) {
 
+  #browser()
+
   parsed <- lme4::glFormula(...)
   Z <- Matrix::t(parsed$reTrms$Zt)
   Z2 <- MatrixExtra::mapSparse(Z, function(x){x^2})
