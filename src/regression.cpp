@@ -147,7 +147,19 @@ void single_newton_mod_pois_reg(
   //Rprintf("Printing H\n");
   Eigen::MatrixXd H = X.transpose() * y_tilde.asDiagonal() * X;
   //printMatrix(H);
-  Eigen::VectorXd dir = -H.inverse() * g;
+  // I may need to call a better method here in the case where
+  // H is a bit larger, which could happen
+  Eigen::VectorXd dir;
+  if (b.size() <= 4) {
+
+    dir = -H.inverse() * g;
+
+  } else{
+
+    dir = H.partialPivLu().solve(-g);
+
+  }
+
   Rprintf("Size of dir = %li\n", dir.size());
   Eigen::VectorXd b_proposed;
 

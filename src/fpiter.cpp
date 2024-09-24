@@ -21,7 +21,7 @@ void fpiter_pois_glmm(
 ) {
 
   // calling the above functions, I can take a single step
-  int total_ranef_coefs_looped = 0;
+  int total_ranef_blocks_looped = 0;
   int m_par_iterated_through = 0;
   int log_chol_par_iterated_through = 0;
   Eigen::VectorXd iter_link_offset;
@@ -40,7 +40,7 @@ void fpiter_pois_glmm(
       double iter_s2;
       double sig2_new = 0;
 
-      for (int j = total_ranef_coefs_looped; j < total_ranef_coefs_looped + blocks_per_ranef[k]; j++) {
+      for (int j = total_ranef_blocks_looped; j < total_ranef_blocks_looped + blocks_per_ranef[k]; j++) {
 
         Rprintf("j = %i\n", j);
 
@@ -85,7 +85,7 @@ void fpiter_pois_glmm(
       Eigen::VectorXd iter_log_chol;
       Eigen::MatrixXd iter_S;
 
-      for (int j = total_ranef_coefs_looped; j < total_ranef_coefs_looped + blocks_per_ranef[k]; j++) {
+      for (int j = total_ranef_blocks_looped; j < total_ranef_blocks_looped + blocks_per_ranef[k]; j++) {
 
         iter_link_offset = link_offset(y_nz_idx[j]);
         iter_m = m.segment(m_par_iterated_through, terms_per_block[k]);
@@ -117,6 +117,9 @@ void fpiter_pois_glmm(
       Sigma[k] = Sigma_new / (static_cast<double>(blocks_per_ranef[k]));
 
     }
+
+    total_ranef_blocks_looped += blocks_per_ranef[k];
+
   }
 
 
