@@ -2,6 +2,7 @@
 #include <Rcpp.h>
 #include <RcppEigen.h>
 #include "utils.h"
+#include "elbo.h"
 
 
 // [[Rcpp::plugins(cpp17)]]
@@ -57,6 +58,9 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
     blocks_per_ranef, terms_per_block
   );
 
+  std::vector<double> elbo_history;
+  elbo_history.reserve(num_iter);
+
   for (int i = 0; i < num_iter; i++) {
 
     fpiter_pois_glmm(
@@ -77,6 +81,23 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
       Sigma
     );
 
+    elbo_history.push_back(
+      get_elbo_pois_glmm_block_posterior(
+        m,
+        b,
+        S_log_chol,
+        S, // maybe change to a vector of matrices?
+        link_offset,
+        Zty,
+        Xty,
+        blocks_per_ranef,
+        log_chol_par_per_block,
+        terms_per_block,
+        log_chol_diag_idx_per_ranef,
+        Sigma
+      )
+    );
+
   }
 
   Rcpp::List fit;
@@ -84,6 +105,7 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
   fit["m"] = m;
   fit["S"] = S;
   fit["Sigma"] = Sigma;
+  fit["elbo"] = elbo_history;
   return fit;
 
 }
