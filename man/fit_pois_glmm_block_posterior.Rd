@@ -4,7 +4,7 @@
 \alias{fit_pois_glmm_block_posterior}
 \title{Poisson GLMM with block posterior}
 \usage{
-fit_pois_glmm_block_posterior(num_iter, ...)
+fit_pois_glmm_block_posterior(num_iter, elbo_tol = 1e-04, ...)
 }
 \arguments{
 \item{num_iter}{number of iterations}

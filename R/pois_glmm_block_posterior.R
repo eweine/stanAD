@@ -9,6 +9,7 @@
 #'
 fit_pois_glmm_block_posterior <- function(
   num_iter,
+  elbo_tol = 1e-4,
   ...
 ) {
 
@@ -62,6 +63,7 @@ fit_pois_glmm_block_posterior <- function(
     blocks_per_ranef = blocks_per_ranef,
     link_offset = link_offset,
     log_chol_par_per_block = free_cov_params_per_ranef,
+    elbo_tol = elbo_tol,
     num_iter = num_iter
   )
 

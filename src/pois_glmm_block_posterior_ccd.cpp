@@ -24,6 +24,7 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
     const std::vector<int>& Z_i,
     const std::vector<int>& Z_j,
     const std::vector<double>& Z_x,
+    double elbo_tol,
     const int& num_iter
 ) {
 
@@ -59,7 +60,25 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
   );
 
   std::vector<double> elbo_history;
-  elbo_history.reserve(num_iter);
+  elbo_history.reserve(num_iter + 1);
+
+  double current_elbo = get_elbo_pois_glmm_block_posterior(
+    m,
+    b,
+    S_log_chol,
+    S, // maybe change to a vector of matrices?
+    link_offset,
+    Zty,
+    Xty,
+    blocks_per_ranef,
+    log_chol_par_per_block,
+    terms_per_block,
+    log_chol_diag_idx_per_ranef,
+    Sigma
+  );
+  elbo_history.push_back(current_elbo);
+
+  double new_elbo;
 
   for (int i = 0; i < num_iter; i++) {
 
@@ -81,22 +100,34 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
       Sigma
     );
 
-    elbo_history.push_back(
-      get_elbo_pois_glmm_block_posterior(
-        m,
-        b,
-        S_log_chol,
-        S, // maybe change to a vector of matrices?
-        link_offset,
-        Zty,
-        Xty,
-        blocks_per_ranef,
-        log_chol_par_per_block,
-        terms_per_block,
-        log_chol_diag_idx_per_ranef,
-        Sigma
-      )
+    new_elbo = get_elbo_pois_glmm_block_posterior(
+      m,
+      b,
+      S_log_chol,
+      S, // maybe change to a vector of matrices?
+      link_offset,
+      Zty,
+      Xty,
+      blocks_per_ranef,
+      log_chol_par_per_block,
+      terms_per_block,
+      log_chol_diag_idx_per_ranef,
+      Sigma
     );
+
+    elbo_history.push_back(
+      new_elbo
+    );
+
+    if (new_elbo - current_elbo <= elbo_tol) {
+
+      break;
+
+    } else {
+
+      current_elbo = new_elbo;
+
+    }
 
   }
 

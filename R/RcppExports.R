@@ -14,8 +14,8 @@ get_elbo_pois_glmm_MFVB <- function(par_vals, Zty, Xty, X, Z, Z2, blocks_per_ran
 }
 
 #' @export
-fit_pois_glmm_block_posterior_ccd <- function(m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, num_iter) {
-    .Call(`_stanAD_fit_pois_glmm_block_posterior_ccd`, m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, num_iter)
+fit_pois_glmm_block_posterior_ccd <- function(m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, elbo_tol, num_iter) {
+    .Call(`_stanAD_fit_pois_glmm_block_posterior_ccd`, m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, elbo_tol, num_iter)
 }
 
 H <- function(x, a) {
