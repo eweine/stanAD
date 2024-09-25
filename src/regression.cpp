@@ -160,7 +160,7 @@ void single_newton_mod_pois_reg(
 
   }
 
-  Rprintf("Size of dir = %li\n", dir.size());
+  //Rprintf("Size of dir = %li\n", dir.size());
   Eigen::VectorXd b_proposed;
 
   double dec_const = dir.dot(g);

@@ -169,6 +169,8 @@ fit_pois_glmm_stan <- function(
       )
     )
 
+    log_chol_idx <- log_chol_idx + free_cov_params_per_ranef[i]
+
   }
 
   return(
