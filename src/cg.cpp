@@ -1,0 +1,58 @@
+#include <RcppEigen.h>
+#include <functional>
+
+// Modified solve_cg to accept std::function instead of a function pointer
+Eigen::VectorXd solve_cg(
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> hvp_func,
+    Eigen::VectorXd& x,
+    Eigen::VectorXd& b,
+    double tol
+) {
+  Eigen::VectorXd Hv = hvp_func(x);
+  Eigen::VectorXd r = b - Hv;
+
+  Eigen::VectorXd p = r;
+  double a;
+  double beta;
+
+  double r_dot_r = r.dot(r);
+  double new_r_dot_r;
+
+  while (true) {
+    Hv = hvp_func(p);
+    a = r_dot_r / (p.dot(Hv));
+    x += a * p;
+    r -= a * Hv;
+
+    if (r.norm() < tol) {
+      break;
+    }
+
+    new_r_dot_r = r.dot(r);
+    beta = new_r_dot_r / r_dot_r;
+    r_dot_r = new_r_dot_r;
+    p = r + beta * p;
+  }
+
+  return x;
+}
+
+//
+// Eigen::VectorXd test_solve_cg(
+//     const Eigen::MatrixXd& A,  // Matrix should be passed by const reference
+//     Eigen::VectorXd b,
+//     Eigen::VectorXd x0
+// ) {
+//   // Define the lambda that computes A * x
+//   auto get_hvp = [&A](const Eigen::VectorXd& x) {
+//     return A * x;
+//   };
+//
+//   // Set a tolerance value for the CG solver
+//   double tol = 1e-6;
+//
+//   // Call solve_cg with the lambda
+//   Eigen::VectorXd sol = solve_cg(get_hvp, x0, b, tol);
+//
+//   return sol;
+// }
