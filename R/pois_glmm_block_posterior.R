@@ -64,7 +64,8 @@ fit_pois_glmm_block_posterior <- function(
     link_offset = link_offset,
     log_chol_par_per_block = free_cov_params_per_ranef,
     elbo_tol = elbo_tol,
-    num_iter = num_iter
+    num_iter = num_iter,
+    is_mfvb = all(terms_per_block == 1)
   )
 
   return(fit_out)
