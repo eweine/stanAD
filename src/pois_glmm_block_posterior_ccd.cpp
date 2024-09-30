@@ -3,6 +3,7 @@
 #include <RcppEigen.h>
 #include "utils.h"
 #include "elbo.h"
+#include "lrvb.h"
 
 
 // [[Rcpp::plugins(cpp17)]]
@@ -25,7 +26,8 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
     const std::vector<int>& Z_j,
     const std::vector<double>& Z_x,
     double elbo_tol,
-    const int& num_iter
+    const int& num_iter,
+    const bool is_mfvb
 ) {
 
   // there's a lot to construct here
@@ -137,6 +139,33 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
   fit["S"] = S;
   fit["Sigma"] = Sigma;
   fit["elbo"] = elbo_history;
+
+  // now, return lrvb estimates
+  if (is_mfvb) {
+
+    Eigen::VectorXd sigma2_inv(terms_per_block.size());
+    for (int k = 0; k < terms_per_block.size(); k++) {
+
+      sigma2_inv(k) = 1.0 / (Sigma[k](0, 0));
+
+    }
+
+    fit["cov"] = -get_lrvb_pois_glmm_mfvb(
+      m,
+      S_log_chol,
+      b,
+      sigma2_inv,
+      blocks_per_ranef,
+      Zty,
+      Xty,
+      X,
+      Z_i,
+      Z_j,
+      Z_x
+    );
+
+  }
+
   return fit;
 
 }

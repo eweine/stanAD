@@ -103,7 +103,7 @@ Eigen::MatrixXd get_lrvb_pois_glmm_mfvb(
       1e-4
     );
 
-    m_sol = cg_sol.reshaped(2, n_ranef_par).row(0);
+    m_sol = cg_sol.segment(0, 2 * n_ranef_par).reshaped(2, n_ranef_par).row(0);
     b_sol = cg_sol.segment(2 * n_ranef_par, n_fixef_par);
     H_inv.col(k) << m_sol, b_sol;
 
