@@ -104,4 +104,3 @@ Eigen::VectorXd get_elbo_hvp(
   return Hv;
 
 }
-
