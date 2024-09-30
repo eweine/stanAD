@@ -51,3 +51,6 @@ rsconnect/
 # source output files
 *.o
 *.so
+
+*.DS_Store
+*.Rproj
