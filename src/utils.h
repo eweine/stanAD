@@ -40,4 +40,11 @@ void printVector(const Eigen::VectorXd& vector);
 
 void printMatrix(const Eigen::MatrixXd& matrix);
 
+void create_Z_and_Z2(const std::vector<int>& Z_i,
+                     const std::vector<int>& Z_j,
+                     const std::vector<double>& Z_x,
+                     Eigen::SparseMatrix<double>& Z,
+                     Eigen::SparseMatrix<double>& Z2,
+                     int rows, int cols);
+
 #endif

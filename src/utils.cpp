@@ -200,6 +200,34 @@ std::vector<std::vector<int>> get_log_chol_diag_idx_per_ranef(
   return vectorOfIDX;
 }
 
+void create_Z_and_Z2(const std::vector<int>& Z_i,
+                          const std::vector<int>& Z_j,
+                          const std::vector<double>& Z_x,
+                          Eigen::SparseMatrix<double>& Z,
+                          Eigen::SparseMatrix<double>& Z2,
+                          int rows, int cols) {
+  // Number of non-zero elements
+  int nnz = Z_x.size();
+
+  // Reserve space for Z and Z2
+  Z.resize(rows, cols);
+  Z2.resize(rows, cols);
+
+  // Create triplet lists for Z and Z2
+  std::vector<Eigen::Triplet<double>> tripletListZ;
+  std::vector<Eigen::Triplet<double>> tripletListZ2;
+
+  // Fill triplets for Z and Z2
+  for (int k = 0; k < nnz; ++k) {
+    tripletListZ.emplace_back(Z_i[k], Z_j[k], Z_x[k]);
+    tripletListZ2.emplace_back(Z_i[k], Z_j[k], Z_x[k] * Z_x[k]); // Z_x^2
+  }
+
+  // Set the triplets to the sparse matrices
+  Z.setFromTriplets(tripletListZ.begin(), tripletListZ.end());
+  Z2.setFromTriplets(tripletListZ2.begin(), tripletListZ2.end());
+}
+
 void printMatrix(const Eigen::MatrixXd& matrix) {
   for (int i = 0; i < matrix.rows(); ++i) {
     for (int j = 0; j < matrix.cols(); ++j) {
