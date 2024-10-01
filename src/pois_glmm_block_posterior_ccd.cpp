@@ -182,23 +182,24 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
     //  n_fixef_par
     //);
 
-    fit["cov"] = -get_lrvb_pois_glmm_mfvb(
-      par_vals,
-      blocks_per_ranef,
-      Zty,
-      Xty,
-      X,
-      Z,
-      Z2,
-      n_ranef_par,
-      n_fixef_par
-    );
+    // fit["cov"] = -get_lrvb_pois_glmm_mfvb(
+    //   par_vals,
+    //   blocks_per_ranef,
+    //   Zty,
+    //   Xty,
+    //   X,
+    //   Z,
+    //   Z2,
+    //   n_ranef_par,
+    //   n_fixef_par
+    // );
 
     Eigen::VectorXd exp_link = link_offset.array().exp().matrix();
 
-    fit["ranef_cov_approx"] = -get_lrvb_approx_pois_glmm_mfvb(
+    Eigen::VectorXd diag_precond = get_lrvb_preconditioner_pois_glmm_mfvb(
       m,
       S_log_chol,
+      b,
       sigma2,
       exp_link,
       blocks_per_ranef,
@@ -208,6 +209,19 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
       vec_Z,
       y_nz_idx,
       n_ranef_par
+    );
+
+    fit["cov"] = get_lrvb_pois_glmm_mfvb_diag_precond(
+      par_vals,
+      blocks_per_ranef,
+      Zty,
+      Xty,
+      X,
+      Z,
+      Z2,
+      diag_precond,
+      n_ranef_par,
+      n_fixef_par
     );
 
   }
