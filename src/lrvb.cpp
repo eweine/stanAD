@@ -2,6 +2,7 @@
 #include <RcppEigen.h>
 #include "cg.h"
 #include "utils.h"
+#include "hessian.h"
 
 // Ultimately I should template this to return a matrix or a sparse matrix
 // based on a user input
@@ -97,3 +98,61 @@ Eigen::MatrixXd get_lrvb_pois_glmm_mfvb(
   return H_inv;
 
 }
+
+
+Eigen::VectorXd get_lrvb_approx_pois_glmm_mfvb(
+    const Eigen::VectorXd& m,
+    const Eigen::VectorXd& log_s,
+    const Eigen::VectorXd& sigma2,
+    Eigen::VectorXd& exp_link,
+    const std::vector<int>& blocks_per_ranef,
+    const Eigen::VectorXd& Zty,
+    const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
+    std::vector<Eigen::MatrixXd>& vec_Z,
+    std::vector<std::vector<int>>& y_nz_idx,
+    int n_ranef_par
+) {
+
+  Eigen::VectorXd post_approx_cov(n_ranef_par);
+
+  int total_ranef_blocks_looped = 0;
+  int par_iterated_through = 0;
+
+  Eigen::Matrix2d block_inv;
+
+  // loop over each random effect block
+  for (int k = 0; k < blocks_per_ranef.size(); k++) {
+
+    double sig2 = sigma2(k);
+
+    for (
+        int j = total_ranef_blocks_looped;
+        j < total_ranef_blocks_looped + blocks_per_ranef[k];
+        j++
+      ) {
+
+      block_inv = hess_inv_1D_pois_glmm_cpp(
+        Zty(par_iterated_through),
+        vec_Z[j],
+        m(par_iterated_through),
+        log_s(par_iterated_through),
+        std::pow(std::exp(log_s(par_iterated_through)), 2),
+        sig2,
+        exp_link(y_nz_idx[j])
+      );
+
+      post_approx_cov(par_iterated_through) = block_inv(0, 0);
+      par_iterated_through += 1;
+
+    }
+
+    total_ranef_blocks_looped += blocks_per_ranef[k];
+
+  }
+
+  return post_approx_cov;
+
+}
+
+

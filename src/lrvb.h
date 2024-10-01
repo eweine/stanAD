@@ -15,4 +15,18 @@ Eigen::MatrixXd get_lrvb_pois_glmm_mfvb(
     int n_fixef_par
 );
 
+Eigen::VectorXd get_lrvb_approx_pois_glmm_mfvb(
+    const Eigen::VectorXd& m,
+    const Eigen::VectorXd& log_s,
+    const Eigen::VectorXd& sigma2,
+    Eigen::VectorXd& exp_link,
+    const std::vector<int>& blocks_per_ranef,
+    const Eigen::VectorXd& Zty,
+    const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
+    std::vector<Eigen::MatrixXd>& vec_Z,
+    std::vector<std::vector<int>>& y_nz_idx,
+    int n_ranef_par
+);
+
 #endif
