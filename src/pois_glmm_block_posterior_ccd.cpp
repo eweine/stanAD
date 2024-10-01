@@ -211,6 +211,23 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
       n_ranef_par
     );
 
+    Eigen::SparseMatrix<double> sparse_precond = get_lrvb_sparse_preconditioner_pois_glmm_mfvb(
+      m,
+      S_log_chol,
+      b,
+      sigma2,
+      exp_link,
+      blocks_per_ranef,
+      Zty,
+      Xty,
+      X,
+      vec_Z,
+      y_nz_idx,
+      n_ranef_par
+    );
+
+    Rprintf("Getting CG solution with diagonal preconditioner\n");
+
     fit["cov"] = get_lrvb_pois_glmm_mfvb_diag_precond(
       par_vals,
       blocks_per_ranef,
@@ -220,6 +237,21 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
       Z,
       Z2,
       diag_precond,
+      n_ranef_par,
+      n_fixef_par
+    );
+
+    Rprintf("Getting CG solution with sparse preconditioner\n");
+
+    fit["cov2"] = get_lrvb_pois_glmm_mfvb_sparse_precond(
+      par_vals,
+      blocks_per_ranef,
+      Zty,
+      Xty,
+      X,
+      Z,
+      Z2,
+      sparse_precond,
       n_ranef_par,
       n_fixef_par
     );

@@ -87,6 +87,50 @@ Eigen::VectorXd solve_cg_diag_precond(
   return x;
 }
 
+Eigen::VectorXd solve_cg_sparse_precond(
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> hvp_func,
+    Eigen::VectorXd& x,
+    Eigen::VectorXd& b,
+    Eigen::SparseMatrix<double>& M_inv,
+    double tol
+) {
+  Eigen::VectorXd Hv = hvp_func(x);
+  Eigen::VectorXd r = b - Hv;
+  Eigen::VectorXd z = M_inv * r;
+
+  Eigen::VectorXd p = z;
+  double a;
+  double beta;
+
+  double r_dot_z = r.dot(z);
+  double new_r_dot_z;
+
+  int cg_iter = 0;
+
+  while (true) {
+    Hv = hvp_func(p);
+    a = r_dot_z / (p.dot(Hv));
+    x += a * p;
+    r -= a * Hv;
+
+    if (r.norm() < tol) {
+      Rprintf("Took %i cg iterations\n", cg_iter);
+      break;
+    }
+
+    z = M_inv * r;
+    new_r_dot_z = r.dot(z);
+    beta = new_r_dot_z / r_dot_z;
+    r_dot_z = new_r_dot_z;
+    p = z + beta * p;
+
+    cg_iter += 1;
+
+  }
+
+  return x;
+}
+
 //
 // Eigen::VectorXd test_solve_cg(
 //     const Eigen::MatrixXd& A,  // Matrix should be passed by const reference

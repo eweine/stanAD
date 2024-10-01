@@ -196,6 +196,108 @@ Eigen::MatrixXd get_lrvb_pois_glmm_mfvb_diag_precond(
 
 }
 
+Eigen::MatrixXd get_lrvb_pois_glmm_mfvb_sparse_precond(
+    Eigen::VectorXd& par_vals,
+    const std::vector<int>& blocks_per_ranef,
+    const Eigen::VectorXd& Zty,
+    const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
+    Eigen::SparseMatrix<double>& Z,
+    Eigen::SparseMatrix<double>& Z2,
+    Eigen::SparseMatrix<double>& sparse_precond,
+    int n_ranef_par,
+    int n_fixef_par
+) {
+
+  // create sparse matrices for calculating elbo
+  //Eigen::SparseMatrix<double> Z;
+  //Eigen::SparseMatrix<double> Z2;
+
+  // create lambda function to get hvp
+  auto get_hvp = [&par_vals, &Zty, &Xty, &X, &Z, &Z2, &blocks_per_ranef, &n_ranef_par, &n_fixef_par](const Eigen::VectorXd& v) {
+    return pois_glmm_mfvb_hvp(
+      par_vals,
+      v,
+      Zty,
+      Xty,
+      X,
+      Z,
+      Z2,
+      blocks_per_ranef,
+      n_ranef_par,
+      n_fixef_par
+    );
+  };
+
+  int total_inv_par = n_fixef_par + n_ranef_par;
+  Eigen::MatrixXd H_inv(total_inv_par, total_inv_par);
+  Eigen::VectorXd I_col(par_vals.size());
+  Eigen::VectorXd x0(par_vals.size());
+  x0.setZero();
+  I_col.setZero();
+  Eigen::VectorXd cg_sol;
+  Eigen::VectorXd m_sol;
+  Eigen::VectorXd b_sol;
+
+  int total_par_iterated_through = 0;
+
+  // first, find inverses of the random effects parameters
+  for (int j = 0; j < n_ranef_par; j++) {
+
+    I_col(total_par_iterated_through) = 1;
+    // start with a good guess for the diagonal
+
+    for (Eigen::SparseMatrix<double>::InnerIterator it(sparse_precond, total_par_iterated_through); it; ++it) {
+      x0(it.row()) = it.value();  // Copy non-zero values from sparse matrix to dense vector
+    }
+
+    cg_sol = solve_cg_sparse_precond(
+      get_hvp,
+      x0,
+      I_col,
+      sparse_precond,
+      1e-4
+    );
+
+    m_sol = cg_sol.segment(0, 2 * n_ranef_par).reshaped(2, n_ranef_par).row(0);
+    b_sol = cg_sol.segment(2 * n_ranef_par, n_fixef_par);
+    H_inv.col(j) << m_sol, b_sol;
+
+    I_col(total_par_iterated_through) = 0;
+    x0.setZero();
+    total_par_iterated_through += 2;
+
+  }
+
+  for (int k = n_ranef_par; k < total_inv_par; k++) {
+
+    I_col(total_par_iterated_through) = 1;
+    for (Eigen::SparseMatrix<double>::InnerIterator it(sparse_precond, total_par_iterated_through); it; ++it) {
+      x0(it.row()) = it.value();  // Copy non-zero values from sparse matrix to dense vector
+    }
+
+    cg_sol = solve_cg_sparse_precond(
+      get_hvp,
+      x0,
+      I_col,
+      sparse_precond,
+      1e-4
+    );
+
+    m_sol = cg_sol.segment(0, 2 * n_ranef_par).reshaped(2, n_ranef_par).row(0);
+    b_sol = cg_sol.segment(2 * n_ranef_par, n_fixef_par);
+    H_inv.col(k) << m_sol, b_sol;
+
+    I_col(total_par_iterated_through) = 0;
+    x0.setZero();
+    total_par_iterated_through += 1;
+
+  }
+
+  return H_inv;
+
+}
+
 Eigen::VectorXd get_lrvb_approx_pois_glmm_mfvb(
     const Eigen::VectorXd& m,
     const Eigen::VectorXd& log_s,
@@ -328,5 +430,136 @@ Eigen::VectorXd get_lrvb_preconditioner_pois_glmm_mfvb(
   diag_precond << post_approx_cov, vpar_approx_cov;
 
   return diag_precond;
+
+}
+
+typedef Eigen::Triplet<double> Triplet;
+Eigen::SparseMatrix<double> get_lrvb_sparse_preconditioner_pois_glmm_mfvb(
+    const Eigen::VectorXd& m,
+    const Eigen::VectorXd& log_s,
+    const Eigen::VectorXd& b,
+    const Eigen::VectorXd& sigma2,
+    Eigen::VectorXd& exp_link,
+    const std::vector<int>& blocks_per_ranef,
+    const Eigen::VectorXd& Zty,
+    const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
+    std::vector<Eigen::MatrixXd>& vec_Z,
+    std::vector<std::vector<int>>& y_nz_idx,
+    int n_ranef_par
+) {
+
+  std::vector<Triplet> H_inv_tripletList;
+  int trip_size = 4 * m.size() + sigma2.size() + b.size() * b.size();
+  H_inv_tripletList.reserve(trip_size);
+  Eigen::VectorXd vpar_approx_cov(sigma2.size());
+
+  int l_ctr = 0; // count the rows of the sparse matrix
+  int r_ctr = 0; // count the columns of the sparse matrix
+
+  int total_ranef_blocks_looped = 0;
+  int par_iterated_through = 0;
+  int block_inv_par_iterated_through = 0;
+  int n_fixef_par = b.size();
+  double ss;
+  double s2;
+
+  Eigen::Matrix2d block_inv;
+
+  // loop over each random effect block
+  for (int k = 0; k < blocks_per_ranef.size(); k++) {
+
+    ss = 0;
+    double sig2 = sigma2(k);
+    double sig2_inv = 1 / sig2;
+    double mk = static_cast<double>(blocks_per_ranef[k]);
+
+    for (
+        int j = total_ranef_blocks_looped;
+        j < total_ranef_blocks_looped + blocks_per_ranef[k];
+        j++
+    ) {
+
+      s2 = std::pow(std::exp(log_s(par_iterated_through)), 2);
+      block_inv = hess_inv_1D_pois_glmm_cpp(
+        Zty(par_iterated_through),
+        vec_Z[j],
+        m(par_iterated_through),
+        log_s(par_iterated_through),
+        s2,
+        sig2,
+        exp_link(y_nz_idx[j])
+      );
+
+      for (int r = 0; r < 2; r++) {
+
+        for (int l = 0; l < 2; l++) {
+
+          H_inv_tripletList.push_back(Triplet(l_ctr, r_ctr, block_inv(l, r)));
+          l_ctr++;
+
+        }
+
+        l_ctr -= 2;
+        r_ctr++;
+
+      }
+
+      l_ctr += 2;
+
+      ss += std::pow(m(par_iterated_through), 2) + s2;
+
+      par_iterated_through += 1;
+      block_inv_par_iterated_through += 2;
+
+    }
+
+    vpar_approx_cov(k) = 1.0 / (
+      std::pow(sig2_inv, 3) * ss - (mk / 2.0) * std::pow(sig2_inv, 2)
+    );
+    total_ranef_blocks_looped += blocks_per_ranef[k];
+
+  }
+
+  // Now, get the diagonal of the inverse of the fixed effects
+  Eigen::MatrixXd H_b = X.transpose() * exp_link.asDiagonal() * X;
+  Eigen::MatrixXd H_b_inverse = H_b.inverse();
+
+  for (int r = 0; r < b.size(); r++) {
+
+    for (int l = 0; l < b.size(); l++) {
+
+      H_inv_tripletList.push_back(Triplet(l_ctr, r_ctr, H_b_inverse(l, r)));
+      l_ctr++;
+
+    }
+
+    l_ctr -= b.size();
+
+    r_ctr++;
+
+  }
+
+  l_ctr += b.size();
+
+  for (int q = 0; q < sigma2.size(); q++) {
+
+    H_inv_tripletList.push_back(Triplet(l_ctr, r_ctr, vpar_approx_cov(q)));
+    l_ctr++;
+    r_ctr++;
+
+  }
+
+  Eigen::SparseMatrix<double> sparse_precond(
+      2*m.size() + b.size() + sigma2.size(),
+      2*m.size() + b.size() + sigma2.size()
+    );
+
+  sparse_precond.setFromTriplets(
+    H_inv_tripletList.begin(),
+    H_inv_tripletList.end()
+  );
+
+  return sparse_precond;
 
 }
