@@ -165,22 +165,22 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
     Eigen::VectorXd par_ranef_vec = par_ranef_mat.reshaped();
     Eigen::VectorXd par_vals(2 * m.size() + b.size() + sigma2_inv.size());
 
-    par_vals << par_ranef_vec, b, sigma2_inv;
+    par_vals << par_ranef_vec, b, sigma2;
 
     int n_ranef_par = m.size();
     int n_fixef_par = b.size();
 
-    //fit["stan_math_out"] = pois_glmm_mfvb_h_test(
-    //  par_vals,
-    //  Zty,
-    //  Xty,
-    //  X,
-    //  Z,
-    //  Z2,
-    //  blocks_per_ranef,
-    //  n_ranef_par,
-    //  n_fixef_par
-    //);
+    fit["stan_math_out"] = pois_glmm_mfvb_h_test(
+     par_vals,
+     Zty,
+     Xty,
+     X,
+     Z,
+     Z2,
+     blocks_per_ranef,
+     n_ranef_par,
+     n_fixef_par
+    );
 
     // fit["cov"] = -get_lrvb_pois_glmm_mfvb(
     //   par_vals,
