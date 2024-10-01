@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "elbo.h"
 #include "lrvb.h"
+#include "hvp.h"
 
 
 // [[Rcpp::plugins(cpp17)]]
@@ -25,6 +26,8 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
     const std::vector<int>& Z_i,
     const std::vector<int>& Z_j,
     const std::vector<double>& Z_x,
+    Eigen::SparseMatrix<double>& Z,
+    Eigen::SparseMatrix<double>& Z2,
     double elbo_tol,
     const int& num_iter,
     const bool is_mfvb
@@ -143,6 +146,8 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
   // now, return lrvb estimates
   if (is_mfvb) {
 
+    Rprintf("Done with optimization...\n");
+
     Eigen::VectorXd sigma2_inv(terms_per_block.size());
     for (int k = 0; k < terms_per_block.size(); k++) {
 
@@ -150,18 +155,41 @@ Rcpp::List fit_pois_glmm_block_posterior_ccd(
 
     }
 
+    Eigen::VectorXd par_ranef(2 * m.size());
+    par_ranef << m, S_log_chol;
+
+    Eigen::MatrixXd par_ranef_mat = par_ranef.reshaped(m.size(), 2).transpose();
+
+    Eigen::VectorXd par_ranef_vec = par_ranef_mat.reshaped();
+    Eigen::VectorXd par_vals(2 * m.size() + b.size() + sigma2_inv.size());
+
+    par_vals << par_ranef_vec, b, sigma2_inv;
+
+    int n_ranef_par = m.size();
+    int n_fixef_par = b.size();
+
+    //fit["stan_math_out"] = pois_glmm_mfvb_h_test(
+    //  par_vals,
+    //  Zty,
+    //  Xty,
+    //  X,
+    //  Z,
+    //  Z2,
+    //  blocks_per_ranef,
+    //  n_ranef_par,
+    //  n_fixef_par
+    //);
+
     fit["cov"] = -get_lrvb_pois_glmm_mfvb(
-      m,
-      S_log_chol,
-      b,
-      sigma2_inv,
+      par_vals,
       blocks_per_ranef,
       Zty,
       Xty,
       X,
-      Z_i,
-      Z_j,
-      Z_x
+      Z,
+      Z2,
+      n_ranef_par,
+      n_fixef_par
     );
 
   }

@@ -6,39 +6,20 @@
 // Ultimately I should template this to return a matrix or a sparse matrix
 // based on a user input
 Eigen::MatrixXd get_lrvb_pois_glmm_mfvb(
-    Eigen::VectorXd& m,
-    Eigen::VectorXd& log_s,
-    Eigen::VectorXd& b,
-    Eigen::VectorXd& sigma2_inv,
+    Eigen::VectorXd& par_vals,
     const std::vector<int>& blocks_per_ranef,
     const Eigen::VectorXd& Zty,
     const Eigen::VectorXd& Xty,
     const Eigen::MatrixXd& X,
-    const std::vector<int>& Z_i,
-    const std::vector<int>& Z_j,
-    const std::vector<double>& Z_x
+    Eigen::SparseMatrix<double>& Z,
+    Eigen::SparseMatrix<double>& Z2,
+    int n_ranef_par,
+    int n_fixef_par
 ) {
 
   // create sparse matrices for calculating elbo
-  Eigen::SparseMatrix<double> Z;
-  Eigen::SparseMatrix<double> Z2;
-
-  int n_ranef_par = m.size();
-
-  create_Z_and_Z2(
-    Z_i,
-    Z_j,
-    Z_x,
-    Z,
-    Z2,
-    Zty.size(),
-    n_ranef_par
-  );
-
-  // Get parameters for elbo
-  int n_fixef_par = b.size();
-  Eigen::VectorXd par_vals(2 * n_ranef_par + n_fixef_par + sigma2_inv.size());
-  par_vals << m, log_s, b, sigma2_inv;
+  //Eigen::SparseMatrix<double> Z;
+  //Eigen::SparseMatrix<double> Z2;
 
   // create lambda function to get hvp
   auto get_hvp = [&par_vals, &Zty, &Xty, &X, &Z, &Z2, &blocks_per_ranef, &n_ranef_par, &n_fixef_par](const Eigen::VectorXd& v) {

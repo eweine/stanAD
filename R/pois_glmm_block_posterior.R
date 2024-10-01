@@ -53,6 +53,8 @@ fit_pois_glmm_block_posterior <- function(
     Z_i = Z_summary$i - 1,
     Z_j = Z_summary$j - 1,
     Z_x = Z_summary$x,
+    Z = Z,
+    Z2 = Z2,
     m = m,
     b = b_init,
     S_log_chol = S_log_chol,

@@ -18,6 +18,8 @@ Eigen::VectorXd solve_cg(
   double r_dot_r = r.dot(r);
   double new_r_dot_r;
 
+  int cg_iter = 0;
+
   while (true) {
     Hv = hvp_func(p);
     a = r_dot_r / (p.dot(Hv));
@@ -25,6 +27,7 @@ Eigen::VectorXd solve_cg(
     r -= a * Hv;
 
     if (r.norm() < tol) {
+      Rprintf("Took %i cg iterations\n", cg_iter);
       break;
     }
 
@@ -32,6 +35,9 @@ Eigen::VectorXd solve_cg(
     beta = new_r_dot_r / r_dot_r;
     r_dot_r = new_r_dot_r;
     p = r + beta * p;
+
+    cg_iter += 1;
+
   }
 
   return x;

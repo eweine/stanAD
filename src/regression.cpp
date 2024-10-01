@@ -142,7 +142,7 @@ void single_newton_mod_pois_reg(
   //printVector(y_tilde);
   //Rprintf("Printing g\n");
   Eigen::VectorXd g = (X.transpose() * y_tilde) - Xty;
-  Rprintf("Size of g = %li\n", g.size());
+  //Rprintf("Size of g = %li\n", g.size());
   //printVector(g);
   //Rprintf("Printing H\n");
   Eigen::MatrixXd H = X.transpose() * y_tilde.asDiagonal() * X;

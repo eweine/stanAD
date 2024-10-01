@@ -73,8 +73,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // fit_pois_glmm_block_posterior_ccd
-Rcpp::List fit_pois_glmm_block_posterior_ccd(Eigen::VectorXd& m, Eigen::VectorXd& S_log_chol, Eigen::VectorXd& b, Eigen::VectorXd& link_offset, const std::vector<int>& n_nz_terms_per_col, const std::vector<int>& terms_per_block, const std::vector<int>& blocks_per_ranef, const std::vector<int>& log_chol_par_per_block, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const std::vector<int>& Z_i, const std::vector<int>& Z_j, const std::vector<double>& Z_x, double elbo_tol, const int& num_iter, const bool is_mfvb);
-RcppExport SEXP _stanAD_fit_pois_glmm_block_posterior_ccd(SEXP mSEXP, SEXP S_log_cholSEXP, SEXP bSEXP, SEXP link_offsetSEXP, SEXP n_nz_terms_per_colSEXP, SEXP terms_per_blockSEXP, SEXP blocks_per_ranefSEXP, SEXP log_chol_par_per_blockSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP Z_iSEXP, SEXP Z_jSEXP, SEXP Z_xSEXP, SEXP elbo_tolSEXP, SEXP num_iterSEXP, SEXP is_mfvbSEXP) {
+Rcpp::List fit_pois_glmm_block_posterior_ccd(Eigen::VectorXd& m, Eigen::VectorXd& S_log_chol, Eigen::VectorXd& b, Eigen::VectorXd& link_offset, const std::vector<int>& n_nz_terms_per_col, const std::vector<int>& terms_per_block, const std::vector<int>& blocks_per_ranef, const std::vector<int>& log_chol_par_per_block, const Eigen::VectorXd& Zty, const Eigen::VectorXd& Xty, const Eigen::MatrixXd& X, const std::vector<int>& Z_i, const std::vector<int>& Z_j, const std::vector<double>& Z_x, Eigen::SparseMatrix<double>& Z, Eigen::SparseMatrix<double>& Z2, double elbo_tol, const int& num_iter, const bool is_mfvb);
+RcppExport SEXP _stanAD_fit_pois_glmm_block_posterior_ccd(SEXP mSEXP, SEXP S_log_cholSEXP, SEXP bSEXP, SEXP link_offsetSEXP, SEXP n_nz_terms_per_colSEXP, SEXP terms_per_blockSEXP, SEXP blocks_per_ranefSEXP, SEXP log_chol_par_per_blockSEXP, SEXP ZtySEXP, SEXP XtySEXP, SEXP XSEXP, SEXP Z_iSEXP, SEXP Z_jSEXP, SEXP Z_xSEXP, SEXP ZSEXP, SEXP Z2SEXP, SEXP elbo_tolSEXP, SEXP num_iterSEXP, SEXP is_mfvbSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -92,10 +92,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<int>& >::type Z_i(Z_iSEXP);
     Rcpp::traits::input_parameter< const std::vector<int>& >::type Z_j(Z_jSEXP);
     Rcpp::traits::input_parameter< const std::vector<double>& >::type Z_x(Z_xSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< Eigen::SparseMatrix<double>& >::type Z2(Z2SEXP);
     Rcpp::traits::input_parameter< double >::type elbo_tol(elbo_tolSEXP);
     Rcpp::traits::input_parameter< const int& >::type num_iter(num_iterSEXP);
     Rcpp::traits::input_parameter< const bool >::type is_mfvb(is_mfvbSEXP);
-    rcpp_result_gen = Rcpp::wrap(fit_pois_glmm_block_posterior_ccd(m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, elbo_tol, num_iter, is_mfvb));
+    rcpp_result_gen = Rcpp::wrap(fit_pois_glmm_block_posterior_ccd(m, S_log_chol, b, link_offset, n_nz_terms_per_col, terms_per_block, blocks_per_ranef, log_chol_par_per_block, Zty, Xty, X, Z_i, Z_j, Z_x, Z, Z2, elbo_tol, num_iter, is_mfvb));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -128,7 +130,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 10},
     {"_stanAD_get_elbo_hvp", (DL_FUNC) &_stanAD_get_elbo_hvp, 11},
     {"_stanAD_get_elbo_pois_glmm_MFVB", (DL_FUNC) &_stanAD_get_elbo_pois_glmm_MFVB, 10},
-    {"_stanAD_fit_pois_glmm_block_posterior_ccd", (DL_FUNC) &_stanAD_fit_pois_glmm_block_posterior_ccd, 17},
+    {"_stanAD_fit_pois_glmm_block_posterior_ccd", (DL_FUNC) &_stanAD_fit_pois_glmm_block_posterior_ccd, 19},
     {"_stanAD_H", (DL_FUNC) &_stanAD_H, 2},
     {"_stanAD_log_cholesky_grad", (DL_FUNC) &_stanAD_log_cholesky_grad, 2},
     {NULL, NULL, 0}
