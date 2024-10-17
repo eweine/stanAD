@@ -9,6 +9,7 @@
 #include <type_traits>
 #include "grad.h"
 
+
 Eigen::VectorXd single_local_block_multiD_grad_pois_glmm(
     const Eigen::VectorXd Zty,
     const Eigen::MatrixXd& Z,
@@ -63,12 +64,52 @@ Eigen::VectorXd single_local_block_multiD_grad_pois_glmm(
             Z * par_scaled.segment(0, n_m_par) +
               0.5 * (Z * Sfv).cwiseProduct(Z).rowwise().sum()
           )
+        ) +
+        0.5 * stan::math::dot_product(
+          par_scaled.segment(0, n_m_par),
+          Sigma_inv * par_scaled.segment(0, n_m_par)
         );
 
       return elbo;
 
     },
     par_vals, fx, grad_fx);
+
+  return grad_fx;
+
+}
+
+Eigen::VectorXd fixef_grad_pois_glmm(
+    const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
+    Eigen::VectorXd b,
+    Eigen::VectorXd b_scaling,
+    Eigen::VectorXd link
+) {
+
+  double fx;
+  Eigen::VectorXd grad_fx;
+  Eigen::VectorXd exp_link_prod = link.array().exp();
+
+  stan::math::gradient(
+    [&Xty, &exp_link_prod, &X, &b_scaling](auto b_v) {
+
+      using ScalarType = typename std::decay_t<decltype(b_v)>::Scalar;
+
+      Eigen::Vector<ScalarType, Eigen::Dynamic> b_scaled = b_v.cwiseProduct(
+        b_scaling
+      );
+
+      return -stan::math::dot_product(Xty, b_scaled) +
+        stan::math::dot_product(
+          exp_link_prod,
+          stan::math::exp(
+            X * b_scaled
+          )
+        );
+
+    },
+    b, fx, grad_fx);
 
   return grad_fx;
 
@@ -128,15 +169,17 @@ double single_var_comp_1D_grad_glmm(
     m.array().square().sum() + s2.sum()
     );
 
+  double det_scaling = static_cast<double>(m.size());
+
   stan::math::gradient(
-    [&par_sum, &par_scaling](auto par) {
+    [&par_sum, &par_scaling, &det_scaling](auto par) {
 
       using ScalarType = typename std::decay_t<decltype(par)>::Scalar;
       ScalarType log_sigma_scaled = par(0) * par_scaling;
       ScalarType sigma2_inv = 1 / stan::math::square(stan::math::exp(log_sigma_scaled));
 
 
-      return log_sigma_scaled + sigma2_inv * par_sum;
+      return det_scaling * log_sigma_scaled + sigma2_inv * par_sum;
 
     },
     log_sigma, fx, grad_fx);
@@ -157,8 +200,10 @@ Eigen::VectorXd single_var_comp_multiD_grad_glmm(
   double fx;
   Eigen::VectorXd grad_fx;
 
+  double det_scaling = static_cast<double>(M.rows());
+
   stan::math::gradient(
-    [&M, &S, &par_scaling, &Sigma_d](auto par) {
+    [&M, &S, &par_scaling, &Sigma_d, &det_scaling](auto par) {
 
       using ScalarType = typename std::decay_t<decltype(par)>::Scalar;
       Eigen::Vector<ScalarType, Eigen::Dynamic> par_scaled = par.cwiseProduct(
@@ -177,7 +222,7 @@ Eigen::VectorXd single_var_comp_multiD_grad_glmm(
         for (int l = k; l < Sigma_d; ++l) {
 
           if (l == k) {
-            elbo += par_scaled(index_Sigma);
+            elbo += det_scaling * par_scaled(index_Sigma);
             Lfv(l, k) = stan::math::exp(par_scaled(index_Sigma)); // exponentiate diagonal elements
           } else {
             Lfv(l, k) = par_scaled(index_Sigma); // off-diagonal elements remain the same
@@ -191,9 +236,7 @@ Eigen::VectorXd single_var_comp_multiD_grad_glmm(
       );
 
       elbo += 0.5 * (
-        stan::math::sum(
-          (M * Sigma_inv).cwiseProduct(M).rowwise().sum()
-        ) +
+        stan::math::sum(M.cwiseProduct(M * Sigma_inv)) +
           stan::math::sum(S * Sigma_inv.reshaped())
       );
 

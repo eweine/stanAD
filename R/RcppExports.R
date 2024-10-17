@@ -26,3 +26,15 @@ log_cholesky_grad <- function(l_params, A) {
     .Call(`_stanAD_log_cholesky_grad`, l_params, A)
 }
 
+get_n_nz_terms <- function(n_nz_terms_per_col, blocks_per_ranef, terms_per_block) {
+    .Call(`_stanAD_get_n_nz_terms`, n_nz_terms_per_col, blocks_per_ranef, terms_per_block)
+}
+
+create_ranef_Z <- function(n_nz_terms, blocks_per_ranef, terms_per_block, values) {
+    .Call(`_stanAD_create_ranef_Z`, n_nz_terms, blocks_per_ranef, terms_per_block, values)
+}
+
+create_y_nz_idx <- function(n_nz_terms, blocks_per_ranef, terms_per_block, Z_i) {
+    .Call(`_stanAD_create_y_nz_idx`, n_nz_terms, blocks_per_ranef, terms_per_block, Z_i)
+}
+

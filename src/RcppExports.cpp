@@ -125,6 +125,47 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_n_nz_terms
+std::vector<int> get_n_nz_terms(const std::vector<int> n_nz_terms_per_col, const std::vector<int> blocks_per_ranef, const std::vector<int> terms_per_block);
+RcppExport SEXP _stanAD_get_n_nz_terms(SEXP n_nz_terms_per_colSEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<int> >::type n_nz_terms_per_col(n_nz_terms_per_colSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int> >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int> >::type terms_per_block(terms_per_blockSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_n_nz_terms(n_nz_terms_per_col, blocks_per_ranef, terms_per_block));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_ranef_Z
+std::vector<Eigen::MatrixXd> create_ranef_Z(const std::vector<int>& n_nz_terms, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block, const std::vector<double>& values);
+RcppExport SEXP _stanAD_create_ranef_Z(SEXP n_nz_termsSEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP, SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type n_nz_terms(n_nz_termsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_ranef_Z(n_nz_terms, blocks_per_ranef, terms_per_block, values));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_y_nz_idx
+std::vector<std::vector<int>> create_y_nz_idx(const std::vector<int>& n_nz_terms, const std::vector<int>& blocks_per_ranef, const std::vector<int>& terms_per_block, const std::vector<int>& Z_i);
+RcppExport SEXP _stanAD_create_y_nz_idx(SEXP n_nz_termsSEXP, SEXP blocks_per_ranefSEXP, SEXP terms_per_blockSEXP, SEXP Z_iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type n_nz_terms(n_nz_termsSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type Z_i(Z_iSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_y_nz_idx(n_nz_terms, blocks_per_ranef, terms_per_block, Z_i));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 10},
@@ -133,6 +174,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_stanAD_fit_pois_glmm_block_posterior_ccd", (DL_FUNC) &_stanAD_fit_pois_glmm_block_posterior_ccd, 19},
     {"_stanAD_H", (DL_FUNC) &_stanAD_H, 2},
     {"_stanAD_log_cholesky_grad", (DL_FUNC) &_stanAD_log_cholesky_grad, 2},
+    {"_stanAD_get_n_nz_terms", (DL_FUNC) &_stanAD_get_n_nz_terms, 3},
+    {"_stanAD_create_ranef_Z", (DL_FUNC) &_stanAD_create_ranef_Z, 4},
+    {"_stanAD_create_y_nz_idx", (DL_FUNC) &_stanAD_create_y_nz_idx, 4},
     {NULL, NULL, 0}
 };
 

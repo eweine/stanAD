@@ -34,13 +34,16 @@ Eigen::MatrixXd get_S_1d(double log_sigma) {
 // calculates link function and S for each block
 std::vector<Eigen::MatrixXd> get_link(
   Eigen::VectorXd& scaled_par,
+  Eigen::MatrixXd& X,
   std::vector<Eigen::MatrixXd>& vec_Z,
   std::vector<std::vector<int>>& y_nz_idx,
   const std::vector<int>& blocks_per_ranef,
   const std::vector<int>& log_chol_par_per_block,
   const std::vector<int>& terms_per_block,
   Eigen::VectorXd& link,
-  std::vector<Eigen::MatrixXd>& S_by_block
+  std::vector<Eigen::MatrixXd>& S_by_block,
+  int& fixef_start,
+  int& n_b
 ) {
 
   std::vector<Eigen::MatrixXd> vec_S_by_ranef;
@@ -117,6 +120,8 @@ std::vector<Eigen::MatrixXd> get_link(
 
   }
 
+  link += X * scaled_par.segment(fixef_start, n_b);
+
   return vec_S_by_ranef;
 
 }
@@ -125,6 +130,7 @@ std::vector<Eigen::MatrixXd> get_link(
 Eigen::VectorXd get_grad_pois_glmm(
     Eigen::VectorXd& par,
     Eigen::VectorXd& par_scaling,
+    Eigen::MatrixXd& X,
     std::vector<Eigen::MatrixXd>& vec_Z,
     std::vector<std::vector<int>>& y_nz_idx,
     const Eigen::VectorXd& Zty,
@@ -148,15 +154,20 @@ Eigen::VectorXd get_grad_pois_glmm(
   std::vector<Eigen::MatrixXd> S_by_block;
   S_by_block.reserve(total_blocks);
 
+  int fixef_start = n_m_par + n_log_chol_par;
+
   std::vector<Eigen::MatrixXd> vec_S_by_ranef = get_link(
     par_scaled,
+    X,
     vec_Z,
     y_nz_idx,
     blocks_per_ranef,
     log_chol_par_per_block,
     terms_per_block,
     link,
-    S_by_block
+    S_by_block,
+    fixef_start,
+    n_b_par
   );
 
   int block_ctr = 0;

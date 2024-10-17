@@ -38,4 +38,12 @@ Eigen::VectorXd single_var_comp_multiD_grad_glmm(
     int Sigma_d
 );
 
+Eigen::VectorXd fixef_grad_pois_glmm(
+    const Eigen::VectorXd& Xty,
+    const Eigen::MatrixXd& X,
+    Eigen::VectorXd b,
+    Eigen::VectorXd b_scaling,
+    Eigen::VectorXd link
+);
+
 #endif

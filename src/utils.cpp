@@ -4,6 +4,7 @@
 
 // [[Rcpp::depends(RcppEigen)]]
 
+// [[Rcpp::export]]
 std::vector<int> get_n_nz_terms(
     const std::vector<int> n_nz_terms_per_col,
     const std::vector<int> blocks_per_ranef,
@@ -35,6 +36,7 @@ std::vector<int> get_n_nz_terms(
 }
 
 
+// [[Rcpp::export]]
 std::vector<Eigen::MatrixXd> create_ranef_Z(
     const std::vector<int>& n_nz_terms,    // number of nonzero terms for each ranef coefficient
     const std::vector<int>& blocks_per_ranef,  // number of coefficients per ranef (e.g. 50)
@@ -94,6 +96,7 @@ std::vector<Eigen::MatrixXd> initialize_Sigma(
 
 }
 
+// [[Rcpp::export]]
 std::vector<std::vector<int>> create_y_nz_idx(
     const std::vector<int>& n_nz_terms,    // number of nonzero terms for each ranef coefficient
     const std::vector<int>& blocks_per_ranef,  // number of coefficients per ranef (e.g. 50)
