@@ -9,6 +9,14 @@ get_elbo_hvp <- function(par_vals, v, Zty, Xty, X, Z, Z2, blocks_per_ranef, term
     .Call(`_stanAD_get_elbo_hvp`, par_vals, v, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par)
 }
 
+get_neg_elbo_pois_glmm <- function(par, par_scaling, X, vec_Z, y_nz_idx, Zty, Xty, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n, n_m_par, n_log_chol_par, n_b_par, total_blocks) {
+    .Call(`_stanAD_get_neg_elbo_pois_glmm`, par, par_scaling, X, vec_Z, y_nz_idx, Zty, Xty, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n, n_m_par, n_log_chol_par, n_b_par, total_blocks)
+}
+
+get_grad_pois_glmm <- function(par, par_scaling, X, vec_Z, y_nz_idx, Zty, Xty, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n, n_m_par, n_log_chol_par, n_b_par, total_blocks) {
+    .Call(`_stanAD_get_grad_pois_glmm`, par, par_scaling, X, vec_Z, y_nz_idx, Zty, Xty, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n, n_m_par, n_log_chol_par, n_b_par, total_blocks)
+}
+
 get_elbo_pois_glmm_MFVB <- function(par_vals, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par) {
     .Call(`_stanAD_get_elbo_pois_glmm_MFVB`, par_vals, Zty, Xty, X, Z, Z2, blocks_per_ranef, terms_per_block, n_ranef_par, n_fixef_par)
 }

@@ -41,6 +41,8 @@ get_data_pois_glmm <- function(...) {
     Z_summary$i
   )
 
+  free_cov_par_per_ranef <- terms_per_block * (terms_per_block + 1) * 0.5
+
   return(
     list(
       terms_per_block = terms_per_block,
@@ -51,9 +53,36 @@ get_data_pois_glmm <- function(...) {
       X = parsed$X,
       y = parsed$fr$y,
       Zty = Matrix::crossprod(Z, parsed$fr$y)[,1],
-      Xty = crossprod(parsed$X, parsed$fr$y)[,1]
+      Xty = crossprod(parsed$X, parsed$fr$y)[,1],
+      free_cov_par_per_ranef = free_cov_par_per_ranef
     )
   )
 
 }
 
+init_id_log_chol <- function(n) {
+
+  rep(0, as.integer(0.5 * n * (n + 1)))
+
+}
+
+init_std_norm <- function(n) {
+
+  c(rep(0, as.integer(n + (n * (n + 1) / 2))))
+
+}
+
+
+init_params <- function(blocks_per_ranef, terms_per_block, n_fixef_par) {
+
+  free_cov_par_per_ranef <- terms_per_block * (terms_per_block + 1) * 0.5
+  return(
+    rep(
+      0,
+      n_fixef_par +
+        sum(blocks_per_ranef * (terms_per_block + free_cov_par_per_ranef)) +
+        sum(free_cov_par_per_ranef)
+    )
+  )
+
+}

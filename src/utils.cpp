@@ -245,3 +245,63 @@ void printVector(const Eigen::VectorXd& vector) {
     Rprintf("%f\n", vector(i));
   }
 }
+
+Eigen::MatrixXd get_L_from_log_chol(Eigen::VectorXd log_chol_par, int terms_per_block) {
+
+  Eigen::MatrixXd L(terms_per_block, terms_per_block);
+  L.setZero();
+
+  int index_s = 0;
+
+  for (int k = 0; k < terms_per_block; ++k) {
+    for (int l = k; l < terms_per_block; ++l) {
+
+      L(l, k) = log_chol_par(index_s);
+
+      index_s++;
+    }
+  }
+
+  return L;
+
+}
+
+double get_det_from_log_chol(Eigen::VectorXd log_chol_par, int terms_per_block) {
+
+  int index_s = 0;
+  double res = 0;
+
+  for (int k = 0; k < terms_per_block; ++k) {
+    for (int l = k; l < terms_per_block; ++l) {
+
+      if (l == k) {
+
+        res += log_chol_par(index_s);
+
+      }
+
+      index_s++;
+    }
+  }
+
+  return res;
+
+}
+
+Eigen::MatrixXd get_Sigma_from_log_chol(Eigen::VectorXd log_chol_par, int terms_per_block) {
+
+  Eigen::MatrixXd L = get_L_from_log_chol(log_chol_par, terms_per_block);
+  L.diagonal() = L.diagonal().array().exp();
+  return L * L.transpose();
+
+}
+
+Eigen::MatrixXd get_sigma2_from_log_sigma(double log_sigma) {
+
+  Eigen::Matrix<double, 1, 1> S;
+  S(0, 0) = std::pow(std::exp(log_sigma), 2);
+
+  return S;
+
+}
+

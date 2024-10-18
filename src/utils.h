@@ -47,4 +47,12 @@ void create_Z_and_Z2(const std::vector<int>& Z_i,
                      Eigen::SparseMatrix<double>& Z2,
                      int rows, int cols);
 
+Eigen::MatrixXd get_Sigma_from_log_chol(Eigen::VectorXd log_chol_par, int terms_per_block);
+
+Eigen::MatrixXd get_sigma2_from_log_sigma(double log_sigma);
+
+Eigen::MatrixXd get_L_from_log_chol(Eigen::VectorXd log_chol_par, int terms_per_block);
+
+double get_det_from_log_chol(Eigen::VectorXd log_chol_par, int terms_per_block);
+
 #endif

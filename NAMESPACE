@@ -3,6 +3,7 @@
 export(fit_pois_glmm_block_posterior)
 export(fit_pois_glmm_block_posterior_ccd)
 export(get_data_pois_glmm)
+export(pois_glmm_optim_lbfgs)
 import(Rcpp)
 import(methods)
 importFrom(Rcpp,sourceCpp)

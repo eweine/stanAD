@@ -1,10 +1,9 @@
 #include <RcppEigen.h>
-#include "grad.h"
 #include "utils.h"
 #include "link.h"
 
 // [[Rcpp::export]]
-Eigen::VectorXd get_grad_pois_glmm(
+double get_neg_elbo_pois_glmm(
     Eigen::VectorXd& par,
     Eigen::VectorXd& par_scaling,
     Eigen::MatrixXd& X,
@@ -23,8 +22,6 @@ Eigen::VectorXd get_grad_pois_glmm(
 ) {
 
   Eigen::VectorXd par_scaled = par.cwiseProduct(par_scaling);
-  Eigen::VectorXd grad(par.size());
-  grad.setZero();
 
   Eigen::VectorXd link(n);
   link.setZero();
@@ -47,14 +44,19 @@ Eigen::VectorXd get_grad_pois_glmm(
     n_b_par
   );
 
+  double neg_elbo = link.array().exp().sum();
+
   int total_par_looped = 0;
   int total_ranef_blocks_looped = 0;
   int Sigma_start_idx = n_m_par + n_log_chol_par + n_b_par;
   int m_idx;
   int m_par_looped = 0;
+  double par_sum = 0;
+  double det_scaling = 0;
 
   Eigen::VectorXd iter_link;
   Eigen::MatrixXd Sigma;
+  Eigen::MatrixXd L;
   Eigen::MatrixXd Sigma_inv;
 
   // loop over each random effect block
@@ -69,7 +71,7 @@ Eigen::VectorXd get_grad_pois_glmm(
       );
 
       Eigen::VectorXd z2;
-      Eigen::VectorXd m(blocks_per_ranef[k]);
+      Eigen::VectorXd m2(blocks_per_ranef[k]);
 
       for (
           int j = total_ranef_blocks_looped;
@@ -77,39 +79,27 @@ Eigen::VectorXd get_grad_pois_glmm(
           j++
       ) {
 
-        z2 = vec_Z[j].array().square().matrix();
+          m2(m_idx) = std::pow(par_scaled(total_par_looped), 2);
+          // here, need to get other terms
+          neg_elbo += -Zty(m_par_looped) * par_scaled(total_par_looped) +
+            0.5 * (1 / Sigma(0, 0)) * (m2(m_idx) + vec_S_by_ranef[k](0, m_idx)) -
+            par_scaled(total_par_looped + 1);
 
-        iter_link = link(y_nz_idx[j]);
-
-        // this could likely be pre-computed when I get the values of S above
-        iter_link -= vec_Z[j] * par_scaled(total_par_looped) +
-          0.5 * z2 * S_by_block[j](0, 0);
-
-        grad.segment(total_par_looped, 2) = single_local_block_1D_grad_pois_glmm(
-          Zty(m_par_looped),
-          vec_Z[j],
-          z2,
-          par.segment(total_par_looped, 2), // parameters in the order (m1, ls1)
-          par_scaling.segment(total_par_looped, 2),
-          Sigma(0, 0),
-          iter_link
-        );
-
-        m(m_idx) = par_scaled(total_par_looped);
-        m_idx += 1;
-        m_par_looped += 1;
-        total_par_looped += 2;
+          m_idx += 1;
+          m_par_looped += 1;
+          total_par_looped += 2;
 
       }
 
       Eigen::VectorXd s2 = vec_S_by_ranef[k].row(0);
-
-      grad(Sigma_start_idx) = single_var_comp_1D_grad_glmm(
-        m,
-        s2,
-        par_scaling(Sigma_start_idx),
-        par.segment(Sigma_start_idx, 1)
+      par_sum = 0.5 * (
+        m2.sum() + s2.sum()
       );
+
+      det_scaling = static_cast<double>(m2.size());
+
+      neg_elbo += det_scaling * par_scaled(Sigma_start_idx) +
+        (par_sum / Sigma(0, 0));
 
       Sigma_start_idx += 1;
 
@@ -117,11 +107,14 @@ Eigen::VectorXd get_grad_pois_glmm(
 
       int par_per_block = log_chol_par_per_block[k] + terms_per_block[k];
 
-      Sigma = get_Sigma_from_log_chol(
+      L = get_L_from_log_chol(
         par_scaled.segment(Sigma_start_idx, log_chol_par_per_block[k]),
         log_chol_par_per_block[k]
       );
 
+      neg_elbo += blocks_per_ranef[k] * L.diagonal().sum();
+      L.diagonal() = L.diagonal().array().exp();
+      Sigma = L * L.transpose();
       Sigma_inv = Sigma.inverse();
 
       Eigen::MatrixXd M_T(terms_per_block[k], blocks_per_ranef[k]);
@@ -132,23 +125,20 @@ Eigen::VectorXd get_grad_pois_glmm(
           j++
       ) {
 
-        iter_link = link(y_nz_idx[j]);
-        iter_link -= vec_Z[j] * par_scaled.segment(
-          total_par_looped, terms_per_block[k]
-        ) +
-          0.5 * (vec_Z[j] * S_by_block[j]).cwiseProduct(vec_Z[j]).rowwise().sum();
+        neg_elbo += -Zty.segment(m_par_looped, terms_per_block[k]).dot(
+          par_scaled.segment(total_par_looped, terms_per_block[k])
+        ) + 0.5 * Sigma_inv.cwiseProduct(S_by_block[j]).sum() +
+          0.5 * par_scaled.segment(total_par_looped, terms_per_block[k]).dot(
+            Sigma_inv * par_scaled.segment(total_par_looped, terms_per_block[k])
+          ) + get_det_from_log_chol(
+              par_scaled.segment(
+                total_par_looped + terms_per_block[k],
+                log_chol_par_per_block[k]
+              ),
+              log_chol_par_per_block[k]
+          );
 
-        grad.segment(total_par_looped, par_per_block) = single_local_block_multiD_grad_pois_glmm(
-          Zty.segment(m_par_looped, terms_per_block[k]),
-          vec_Z[j],
-          par.segment(total_par_looped, par_per_block), // parameters in the order (m1, ls1)
-          par_scaling.segment(total_par_looped, par_per_block),
-          Sigma_inv,
-          iter_link,
-          terms_per_block[k]
-        );
-
-        M_T.col(m_idx) = par_scaled.segment(total_par_looped, terms_per_block[k]);
+        M_T.col(m_idx) = par.segment(total_par_looped, terms_per_block[k]);
         m_idx += 1;
         m_par_looped += terms_per_block[k];
         total_par_looped += par_per_block;
@@ -157,12 +147,9 @@ Eigen::VectorXd get_grad_pois_glmm(
 
       M_T.transposeInPlace();
 
-      grad.segment(Sigma_start_idx, log_chol_par_per_block[k]) = single_var_comp_multiD_grad_glmm(
-        M_T,
-        vec_S_by_ranef[k],
-        par_scaling.segment(Sigma_start_idx, log_chol_par_per_block[k]),
-        par.segment(Sigma_start_idx, log_chol_par_per_block[k]),
-        terms_per_block[k]
+      neg_elbo += 0.5 * (
+        M_T.cwiseProduct(M_T * Sigma_inv).sum() +
+          (vec_S_by_ranef[k] * Sigma_inv.reshaped()).sum()
       );
 
       Sigma_start_idx += log_chol_par_per_block[k];
@@ -173,16 +160,8 @@ Eigen::VectorXd get_grad_pois_glmm(
 
   }
 
-  // need to subtract link here
-  link -= X * par_scaled.segment(n_m_par + n_log_chol_par, n_b_par);
-  grad.segment(n_m_par + n_log_chol_par, n_b_par) = fixef_grad_pois_glmm(
-    Xty,
-    X,
-    par.segment(n_m_par + n_log_chol_par, n_b_par),
-    par_scaling.segment(n_m_par + n_log_chol_par, n_b_par),
-    link
-  );
+  neg_elbo -= Xty.dot(par_scaled.segment(n_m_par + n_log_chol_par, n_b_par));
 
-  return grad;
+  return neg_elbo;
 
 }
