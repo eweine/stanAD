@@ -159,32 +159,28 @@ double single_var_comp_1D_grad_glmm(
     Eigen::VectorXd& m,
     Eigen::VectorXd& s2,
     double par_scaling,
-    Eigen::VectorXd log_sigma
+    double log_sigma
 ) {
 
-  double fx;
-  Eigen::VectorXd grad_fx;
-  // These must be the properly scaled values
-  double par_sum = 0.5 * (
-    m.array().square().sum() + s2.sum()
-    );
+  double p = m.array().square().sum() + s2.sum();
+  double d = static_cast<double>(m.size());
+  return d * par_scaling -
+    p * par_scaling * std::exp(-2 * par_scaling * log_sigma);
 
-  double det_scaling = static_cast<double>(m.size());
-
-  stan::math::gradient(
-    [&par_sum, &par_scaling, &det_scaling](auto par) {
-
-      using ScalarType = typename std::decay_t<decltype(par)>::Scalar;
-      ScalarType log_sigma_scaled = par(0) * par_scaling;
-      ScalarType sigma2_inv = 1 / stan::math::square(stan::math::exp(log_sigma_scaled));
-
-
-      return det_scaling * log_sigma_scaled + sigma2_inv * par_sum;
-
-    },
-    log_sigma, fx, grad_fx);
-
-  return grad_fx(0);
+  // stan::math::gradient(
+  //   [&par_sum, &par_scaling, &det_scaling](auto par) {
+  //
+  //     using ScalarType = typename std::decay_t<decltype(par)>::Scalar;
+  //     ScalarType log_sigma_scaled = par(0) * par_scaling;
+  //     ScalarType sigma2_inv = 1 / stan::math::square(stan::math::exp(log_sigma_scaled));
+  //
+  //
+  //     return det_scaling * log_sigma_scaled + sigma2_inv * par_sum;
+  //
+  //   },
+  //   log_sigma, fx, grad_fx);
+  //
+  // return grad_fx(0);
 
 }
 

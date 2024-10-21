@@ -44,17 +44,16 @@ double get_neg_elbo_pois_glmm(
     n_b_par
   );
 
+  Rprintf("Printing link...\n");
+  printVector(link);
+
   double neg_elbo = link.array().exp().sum();
 
   int total_par_looped = 0;
   int total_ranef_blocks_looped = 0;
-  int Sigma_start_idx = n_m_par + n_log_chol_par + n_b_par;
-  int m_idx;
+  int Sigma_start_idx = fixef_start + n_b_par;
   int m_par_looped = 0;
-  double par_sum = 0;
-  double det_scaling = 0;
 
-  Eigen::VectorXd iter_link;
   Eigen::MatrixXd Sigma;
   Eigen::MatrixXd L;
   Eigen::MatrixXd Sigma_inv;
@@ -62,16 +61,11 @@ double get_neg_elbo_pois_glmm(
   // loop over each random effect block
   for (int k = 0; k < terms_per_block.size(); k++) {
 
-    m_idx = 0;
-
     if (terms_per_block[k] == 1) {
 
       Sigma = get_sigma2_from_log_sigma(
         par_scaled(Sigma_start_idx)
       );
-
-      Eigen::VectorXd z2;
-      Eigen::VectorXd m2(blocks_per_ranef[k]);
 
       for (
           int j = total_ranef_blocks_looped;
@@ -79,28 +73,17 @@ double get_neg_elbo_pois_glmm(
           j++
       ) {
 
-          m2(m_idx) = std::pow(par_scaled(total_par_looped), 2);
           // here, need to get other terms
           neg_elbo += -Zty(m_par_looped) * par_scaled(total_par_looped) +
-            0.5 * (1 / Sigma(0, 0)) * (m2(m_idx) + vec_S_by_ranef[k](0, m_idx)) -
+            0.5 * (1 / Sigma(0, 0)) * (std::pow(par_scaled(total_par_looped), 2) + S_by_block[j](0, 0)) -
             par_scaled(total_par_looped + 1);
 
-          m_idx += 1;
           m_par_looped += 1;
           total_par_looped += 2;
 
       }
 
-      Eigen::VectorXd s2 = vec_S_by_ranef[k].row(0);
-      par_sum = 0.5 * (
-        m2.sum() + s2.sum()
-      );
-
-      det_scaling = static_cast<double>(m2.size());
-
-      neg_elbo += det_scaling * par_scaled(Sigma_start_idx) +
-        (par_sum / Sigma(0, 0));
-
+      neg_elbo += static_cast<double>(blocks_per_ranef[k]) * par_scaled(Sigma_start_idx);
       Sigma_start_idx += 1;
 
     } else {
@@ -112,12 +95,10 @@ double get_neg_elbo_pois_glmm(
         log_chol_par_per_block[k]
       );
 
-      neg_elbo += blocks_per_ranef[k] * L.diagonal().sum();
+      neg_elbo += static_cast<double>(blocks_per_ranef[k]) * L.diagonal().sum();
       L.diagonal() = L.diagonal().array().exp();
       Sigma = L * L.transpose();
       Sigma_inv = Sigma.inverse();
-
-      Eigen::MatrixXd M_T(terms_per_block[k], blocks_per_ranef[k]);
 
       for (
           int j = total_ranef_blocks_looped;
@@ -138,19 +119,10 @@ double get_neg_elbo_pois_glmm(
               log_chol_par_per_block[k]
           );
 
-        M_T.col(m_idx) = par.segment(total_par_looped, terms_per_block[k]);
-        m_idx += 1;
         m_par_looped += terms_per_block[k];
         total_par_looped += par_per_block;
 
       }
-
-      M_T.transposeInPlace();
-
-      neg_elbo += 0.5 * (
-        M_T.cwiseProduct(M_T * Sigma_inv).sum() +
-          (vec_S_by_ranef[k] * Sigma_inv.reshaped()).sum()
-      );
 
       Sigma_start_idx += log_chol_par_per_block[k];
 
@@ -160,7 +132,7 @@ double get_neg_elbo_pois_glmm(
 
   }
 
-  neg_elbo -= Xty.dot(par_scaled.segment(n_m_par + n_log_chol_par, n_b_par));
+  neg_elbo -= Xty.dot(par_scaled.segment(fixef_start, n_b_par));
 
   return neg_elbo;
 

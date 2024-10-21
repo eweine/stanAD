@@ -38,7 +38,7 @@ get_data_pois_glmm <- function(...) {
     n_nz_terms,
     blocks_per_ranef,
     terms_per_block,
-    Z_summary$i
+    Z_summary$i - 1
   )
 
   free_cov_par_per_ranef <- terms_per_block * (terms_per_block + 1) * 0.5
@@ -54,7 +54,8 @@ get_data_pois_glmm <- function(...) {
       y = parsed$fr$y,
       Zty = Matrix::crossprod(Z, parsed$fr$y)[,1],
       Xty = crossprod(parsed$X, parsed$fr$y)[,1],
-      free_cov_par_per_ranef = free_cov_par_per_ranef
+      free_cov_par_per_ranef = free_cov_par_per_ranef,
+      Z = Z
     )
   )
 

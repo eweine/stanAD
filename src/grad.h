@@ -27,7 +27,7 @@ double single_var_comp_1D_grad_glmm(
     Eigen::VectorXd& m,
     Eigen::VectorXd& s2,
     double par_scaling,
-    Eigen::VectorXd log_sigma
+    double log_sigma
 );
 
 Eigen::VectorXd single_var_comp_multiD_grad_glmm(
