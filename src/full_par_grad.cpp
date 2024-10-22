@@ -33,7 +33,6 @@ Eigen::VectorXd get_grad_pois_glmm(
 
   int fixef_start = n_m_par + n_log_chol_par;
 
-  Rprintf("Getting link...\n");
   std::vector<Eigen::MatrixXd> vec_S_by_ranef = get_link_pois_glmm(
     par_scaled,
     X,
@@ -47,11 +46,6 @@ Eigen::VectorXd get_grad_pois_glmm(
     fixef_start,
     n_b_par
   );
-
-  Rprintf("Printing link...\n");
-  printVector(link);
-
-  Rprintf("Got link...\n");
 
   int total_par_looped = 0;
   int total_ranef_blocks_looped = 0;
@@ -83,8 +77,6 @@ Eigen::VectorXd get_grad_pois_glmm(
           j++
       ) {
 
-        Rprintf("Getting gradient associated with %i\n", j);
-
         z2 = vec_Z[j].array().square().matrix();
 
         iter_link = link(y_nz_idx[j]);
@@ -111,13 +103,6 @@ Eigen::VectorXd get_grad_pois_glmm(
       }
 
       Eigen::VectorXd s2 = vec_S_by_ranef[k].col(0);
-      Rprintf("Printing s2...\n");
-      printVector(s2);
-      Rprintf("Printing m...\n");
-      printVector(m);
-
-      Rprintf("log_sigm = %f...\n", par(Sigma_start_idx));
-      Rprintf("Getting gradient for variance component\n");
 
       grad(Sigma_start_idx) = single_var_comp_1D_grad_glmm(
         m,
@@ -134,7 +119,7 @@ Eigen::VectorXd get_grad_pois_glmm(
 
       Sigma = get_Sigma_from_log_chol(
         par_scaled.segment(Sigma_start_idx, log_chol_par_per_block[k]),
-        log_chol_par_per_block[k]
+        terms_per_block[k]
       );
 
       Sigma_inv = Sigma.inverse();
@@ -148,6 +133,7 @@ Eigen::VectorXd get_grad_pois_glmm(
       ) {
 
         iter_link = link(y_nz_idx[j]);
+
         iter_link -= vec_Z[j] * par_scaled.segment(
           total_par_looped, terms_per_block[k]
         ) +

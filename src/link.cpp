@@ -20,6 +20,8 @@ std::vector<Eigen::MatrixXd> get_link_pois_glmm(
   int total_par_looped = 0;
   int total_ranef_blocks_looped = 0;
 
+  link += X * scaled_par.segment(fixef_start, n_b);
+
   for (int k = 0; k < terms_per_block.size(); k++) {
 
     Eigen::MatrixXd S_T(
@@ -68,6 +70,7 @@ std::vector<Eigen::MatrixXd> get_link_pois_glmm(
           ),
           terms_per_block[k]
         );
+        S_by_block.push_back(S_j);
 
         S_T.col(j) = S_j.reshaped();
 
@@ -88,8 +91,6 @@ std::vector<Eigen::MatrixXd> get_link_pois_glmm(
     vec_S_by_ranef.push_back(S_T);
 
   }
-
-  link += X * scaled_par.segment(fixef_start, n_b);
 
   return vec_S_by_ranef;
 

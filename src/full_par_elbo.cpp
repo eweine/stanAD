@@ -44,9 +44,6 @@ double get_neg_elbo_pois_glmm(
     n_b_par
   );
 
-  Rprintf("Printing link...\n");
-  printVector(link);
-
   double neg_elbo = link.array().exp().sum();
 
   int total_par_looped = 0;
@@ -92,12 +89,13 @@ double get_neg_elbo_pois_glmm(
 
       L = get_L_from_log_chol(
         par_scaled.segment(Sigma_start_idx, log_chol_par_per_block[k]),
-        log_chol_par_per_block[k]
+        terms_per_block[k]
       );
 
       neg_elbo += static_cast<double>(blocks_per_ranef[k]) * L.diagonal().sum();
       L.diagonal() = L.diagonal().array().exp();
       Sigma = L * L.transpose();
+
       Sigma_inv = Sigma.inverse();
 
       for (
@@ -111,12 +109,12 @@ double get_neg_elbo_pois_glmm(
         ) + 0.5 * Sigma_inv.cwiseProduct(S_by_block[j]).sum() +
           0.5 * par_scaled.segment(total_par_looped, terms_per_block[k]).dot(
             Sigma_inv * par_scaled.segment(total_par_looped, terms_per_block[k])
-          ) + get_det_from_log_chol(
+          ) - get_det_from_log_chol(
               par_scaled.segment(
                 total_par_looped + terms_per_block[k],
                 log_chol_par_per_block[k]
               ),
-              log_chol_par_per_block[k]
+              terms_per_block[k]
           );
 
         m_par_looped += terms_per_block[k];
