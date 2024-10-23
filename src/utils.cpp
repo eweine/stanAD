@@ -305,3 +305,114 @@ Eigen::MatrixXd get_sigma2_from_log_sigma(double log_sigma) {
 
 }
 
+// [[Rcpp::export]]
+Rcpp::List structure_output(
+  const Eigen::VectorXd& par,
+  const std::vector<int>& blocks_per_ranef,
+  const std::vector<int>& log_chol_par_per_block,
+  const std::vector<int>& terms_per_block,
+  int& n_m_par,
+  int& n_log_chol_par,
+  int& n_b_par,
+  int& total_blocks
+) {
+
+  Eigen::VectorXd m(n_m_par);
+  m.setZero();
+
+  std::vector<Eigen::MatrixXd> S;
+  S.reserve(total_blocks);
+
+  std::vector<Eigen::MatrixXd> Sigma;
+  Sigma.reserve(terms_per_block.size());
+
+  int fixef_start = n_m_par + n_log_chol_par;
+  int total_par_looped = 0;
+  int total_ranef_blocks_looped = 0;
+  int Sigma_start_idx = fixef_start + n_b_par;
+  int m_par_looped = 0;
+
+  Eigen::MatrixXd Sigma_k;
+  Eigen::MatrixXd S_j;
+
+  // loop over each random effect block
+  for (int k = 0; k < terms_per_block.size(); k++) {
+
+    if (terms_per_block[k] == 1) {
+
+      Sigma_k = get_sigma2_from_log_sigma(
+        par(Sigma_start_idx)
+      );
+
+      Sigma.push_back(Sigma_k);
+
+      for (
+          int j = total_ranef_blocks_looped;
+          j < total_ranef_blocks_looped + blocks_per_ranef[k];
+          j++
+      ) {
+
+        m(m_par_looped) = par(total_par_looped);
+        S_j = get_sigma2_from_log_sigma(
+          par(total_par_looped + 1)
+        );
+        S.push_back(S_j);
+
+        m_par_looped += 1;
+        total_par_looped += 2;
+
+      }
+
+      Sigma_start_idx += 1;
+
+    } else {
+
+      int par_per_block = log_chol_par_per_block[k] + terms_per_block[k];
+
+      Sigma_k = get_Sigma_from_log_chol(
+        par.segment(Sigma_start_idx, log_chol_par_per_block[k]),
+        terms_per_block[k]
+      );
+
+      Sigma.push_back(Sigma_k);
+
+      for (
+          int j = total_ranef_blocks_looped;
+          j < total_ranef_blocks_looped + blocks_per_ranef[k];
+          j++
+      ) {
+
+        m.segment(m_par_looped, terms_per_block[k]) = par.segment(
+          total_par_looped, terms_per_block[k]
+        );
+
+        S_j = get_Sigma_from_log_chol(
+          par.segment(
+            total_par_looped + terms_per_block[k],
+            log_chol_par_per_block[k]
+          ),
+          terms_per_block[k]
+        );
+        S.push_back(S_j);
+
+        m_par_looped += terms_per_block[k];
+        total_par_looped += par_per_block;
+
+      }
+
+      Sigma_start_idx += log_chol_par_per_block[k];
+
+    }
+
+  }
+
+  Eigen::VectorXd b = par.segment(fixef_start, n_b_par);
+
+  return Rcpp::List::create(
+    Rcpp::Named("m") = m,
+    Rcpp::Named("b") = b,
+    Rcpp::Named("S") = S,
+    Rcpp::Named("Sigma") = Sigma
+  );
+
+}

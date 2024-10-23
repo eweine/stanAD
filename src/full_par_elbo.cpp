@@ -131,7 +131,6 @@ double get_neg_elbo_pois_glmm(
   }
 
   neg_elbo -= Xty.dot(par_scaled.segment(fixef_start, n_b_par));
-
   return neg_elbo;
 
 }

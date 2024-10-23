@@ -15,10 +15,14 @@ pois_glmm_optim_lbfgs <- function(
 
   par <- par / par_scaling
 
+  total_log_chol_par <- sum(
+    glmm_data$free_cov_par_per_ranef * glmm_data$blocks_per_ranef
+  )
+
   opt_out <- optim(
     par = par,
     fn = get_neg_elbo_pois_glmm,
-    grad = get_grad_pois_glmm,
+    gr = get_grad_pois_glmm,
     method = "L-BFGS-B",
     par_scaling = par_scaling,
     X = glmm_data$X,
@@ -31,14 +35,25 @@ pois_glmm_optim_lbfgs <- function(
     terms_per_block = glmm_data$terms_per_block,
     n = length(glmm_data$y),
     n_m_par = ncol(glmm_data$Z),
-    n_log_chol_par = sum(
-      glmm_data$free_cov_par_per_ranef * glmm_data$blocks_per_ranef
-    ),
+    n_log_chol_par = total_log_chol_par,
+    n_b_par = ncol(glmm_data$X),
+    total_blocks = sum(glmm_data$blocks_per_ranef),
+    control = list(maxit = 1e5, trace = 2)
+  )
+
+  par <- opt_out$par * par_scaling
+  list_out <- structure_output(
+    par = par,
+    blocks_per_ranef = glmm_data$blocks_per_ranef,
+    log_chol_par_per_block = glmm_data$free_cov_par_per_ranef,
+    terms_per_block = glmm_data$terms_per_block,
+    n_m_par = ncol(glmm_data$Z),
+    n_log_chol_par = total_log_chol_par,
     n_b_par = ncol(glmm_data$X),
     total_blocks = sum(glmm_data$blocks_per_ranef)
   )
 
-  return(opt_out$par * par_scaling)
+  return(list_out)
 
 }
 

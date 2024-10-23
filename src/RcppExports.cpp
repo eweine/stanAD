@@ -216,6 +216,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// structure_output
+Rcpp::List structure_output(const Eigen::VectorXd& par, const std::vector<int>& blocks_per_ranef, const std::vector<int>& log_chol_par_per_block, const std::vector<int>& terms_per_block, int& n_m_par, int& n_log_chol_par, int& n_b_par, int& total_blocks);
+RcppExport SEXP _stanAD_structure_output(SEXP parSEXP, SEXP blocks_per_ranefSEXP, SEXP log_chol_par_per_blockSEXP, SEXP terms_per_blockSEXP, SEXP n_m_parSEXP, SEXP n_log_chol_parSEXP, SEXP n_b_parSEXP, SEXP total_blocksSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::VectorXd& >::type par(parSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type blocks_per_ranef(blocks_per_ranefSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type log_chol_par_per_block(log_chol_par_per_blockSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int>& >::type terms_per_block(terms_per_blockSEXP);
+    Rcpp::traits::input_parameter< int& >::type n_m_par(n_m_parSEXP);
+    Rcpp::traits::input_parameter< int& >::type n_log_chol_par(n_log_chol_parSEXP);
+    Rcpp::traits::input_parameter< int& >::type n_b_par(n_b_parSEXP);
+    Rcpp::traits::input_parameter< int& >::type total_blocks(total_blocksSEXP);
+    rcpp_result_gen = Rcpp::wrap(structure_output(par, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n_m_par, n_log_chol_par, n_b_par, total_blocks));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_stanAD_get_elbo_grad", (DL_FUNC) &_stanAD_get_elbo_grad, 10},
@@ -229,6 +247,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_stanAD_get_n_nz_terms", (DL_FUNC) &_stanAD_get_n_nz_terms, 3},
     {"_stanAD_create_ranef_Z", (DL_FUNC) &_stanAD_create_ranef_Z, 4},
     {"_stanAD_create_y_nz_idx", (DL_FUNC) &_stanAD_create_y_nz_idx, 4},
+    {"_stanAD_structure_output", (DL_FUNC) &_stanAD_structure_output, 8},
     {NULL, NULL, 0}
 };
 

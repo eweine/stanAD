@@ -46,3 +46,7 @@ create_y_nz_idx <- function(n_nz_terms, blocks_per_ranef, terms_per_block, Z_i) 
     .Call(`_stanAD_create_y_nz_idx`, n_nz_terms, blocks_per_ranef, terms_per_block, Z_i)
 }
 
+structure_output <- function(par, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n_m_par, n_log_chol_par, n_b_par, total_blocks) {
+    .Call(`_stanAD_structure_output`, par, blocks_per_ranef, log_chol_par_per_block, terms_per_block, n_m_par, n_log_chol_par, n_b_par, total_blocks)
+}
+
