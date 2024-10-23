@@ -21,6 +21,7 @@ double get_neg_elbo_pois_glmm(
     int& total_blocks
 ) {
 
+  //Rprintf("Entering elbo C++ function...\n");
   Eigen::VectorXd par_scaled = par.cwiseProduct(par_scaling);
 
   Eigen::VectorXd link(n);
@@ -30,7 +31,9 @@ double get_neg_elbo_pois_glmm(
 
   int fixef_start = n_m_par + n_log_chol_par;
 
-  std::vector<Eigen::MatrixXd> vec_S_by_ranef = get_link_pois_glmm(
+  //Rprintf("Getting link...\n");
+
+  get_link_pois_glmm_elbo_only(
     par_scaled,
     X,
     vec_Z,
@@ -43,6 +46,8 @@ double get_neg_elbo_pois_glmm(
     fixef_start,
     n_b_par
   );
+
+  //Rprintf("Finished getting link...\n");
 
   double neg_elbo = link.array().exp().sum();
 
@@ -58,6 +63,8 @@ double get_neg_elbo_pois_glmm(
   // loop over each random effect block
   for (int k = 0; k < terms_per_block.size(); k++) {
 
+    //Rprintf("k = %i\n", k);
+
     if (terms_per_block[k] == 1) {
 
       Sigma = get_sigma2_from_log_sigma(
@@ -69,6 +76,8 @@ double get_neg_elbo_pois_glmm(
           j < total_ranef_blocks_looped + blocks_per_ranef[k];
           j++
       ) {
+
+          //Rprintf("j = %i\n", j);
 
           // here, need to get other terms
           neg_elbo += -Zty(m_par_looped) * par_scaled(total_par_looped) +
@@ -104,6 +113,8 @@ double get_neg_elbo_pois_glmm(
           j++
       ) {
 
+        //Rprintf("j = %i\n", j);
+
         neg_elbo += -Zty.segment(m_par_looped, terms_per_block[k]).dot(
           par_scaled.segment(total_par_looped, terms_per_block[k])
         ) + 0.5 * Sigma_inv.cwiseProduct(S_by_block[j]).sum() +
@@ -125,6 +136,8 @@ double get_neg_elbo_pois_glmm(
       Sigma_start_idx += log_chol_par_per_block[k];
 
     }
+
+    //Rprintf("total_par_looped = %i\n", total_par_looped);
 
     total_ranef_blocks_looped += blocks_per_ranef[k];
 
