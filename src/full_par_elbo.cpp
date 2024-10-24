@@ -77,9 +77,6 @@ double get_neg_elbo_pois_glmm(
           j++
       ) {
 
-          //Rprintf("j = %i\n", j);
-
-          // here, need to get other terms
           neg_elbo += -Zty(m_par_looped) * par_scaled(total_par_looped) +
             0.5 * (1 / Sigma(0, 0)) * (std::pow(par_scaled(total_par_looped), 2) + S_by_block[j](0, 0)) -
             par_scaled(total_par_looped + 1);
@@ -112,8 +109,6 @@ double get_neg_elbo_pois_glmm(
           j < total_ranef_blocks_looped + blocks_per_ranef[k];
           j++
       ) {
-
-        //Rprintf("j = %i\n", j);
 
         neg_elbo += -Zty.segment(m_par_looped, terms_per_block[k]).dot(
           par_scaled.segment(total_par_looped, terms_per_block[k])

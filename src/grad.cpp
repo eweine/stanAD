@@ -167,21 +167,6 @@ double single_var_comp_1D_grad_glmm(
   return d * par_scaling -
     p * par_scaling * std::exp(-2 * par_scaling * log_sigma);
 
-  // stan::math::gradient(
-  //   [&par_sum, &par_scaling, &det_scaling](auto par) {
-  //
-  //     using ScalarType = typename std::decay_t<decltype(par)>::Scalar;
-  //     ScalarType log_sigma_scaled = par(0) * par_scaling;
-  //     ScalarType sigma2_inv = 1 / stan::math::square(stan::math::exp(log_sigma_scaled));
-  //
-  //
-  //     return det_scaling * log_sigma_scaled + sigma2_inv * par_sum;
-  //
-  //   },
-  //   log_sigma, fx, grad_fx);
-  //
-  // return grad_fx(0);
-
 }
 
 
